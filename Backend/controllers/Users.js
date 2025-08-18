@@ -1,0 +1,92 @@
+const Users = require("../models/UserModel");
+const Address = require("../models/AddressModel");
+const { bcryptjs, generateToken } = require("../services/Auth");
+
+async function signUp(req, res) {
+  try {
+    const hashPass = await bcryptjs.hash(req.body.password, 10);
+    const newUser = {
+      userName: req.body.name,
+      userEmail: req.body.email,
+      userPhone: req.body.phone,
+      userPassword: hashPass,
+      userAddress: req.body.address,
+      userType: req.body.type,
+      createdAt: new Date(),
+    };
+    await Users.create(newUser);
+    res.status(201).json({ message: "User created successfully!" });
+    console.log("user craeted...", newUser);
+  } catch (err) {
+    console.error("Signup error:", err.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
+
+async function login(req, res) {
+  const user = await Users.findOne({ userEmail: req.body.email });
+  if (!user) {
+    console.log("User not found");
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  const isMatch = await bcryptjs.compare(req.body.password, user.userPassword);
+  if (!isMatch) {
+    console.log("Invalid credentials");
+    return res.status(400).send("Invalid credentials");
+  }
+
+  const { accessToken, refreshToken } = generateToken(user);
+  res.cookie("refreshToken", refreshToken, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "Strict",
+    path: "/refreshToken",
+  });
+  res.json({ token: accessToken });
+}
+
+async function userProfile(req, res) {
+  try {
+    if (req.user.type === "customer" || "provider") {
+      res.status(200).json({
+        message: `You are authorized. Welcome : ${req.user.name}`,
+      });
+    } else {
+      res.status(403).json({ message: "Access denied. Users only." });
+    }
+  } catch (err) {
+    console.log("Profile Error :", err.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
+
+async function addAddress(req, res) {
+  try {
+    const { address, id } = req.body;
+    const stateAddress = await Address.find({ stateName: address.address });
+
+    if (!stateAddress) {
+      return res.status(400).json({
+        message: "Signup is restricted. Your state is not in the allowed list.",
+      });
+    }
+
+    const user = await Users.findByIdAndUpdate(id, { userAddress: address });
+
+    if (user) {
+      return res
+        .status(200)
+        .json({ message: "User found. Address has been added successfully." });
+    } else {
+      return res
+        .status(404)
+        .json({ message: "User not found. Address could not be added." });
+    }
+  } catch (err) {
+    console.log("Address Error :", err.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
+
+module.exports = { signUp, login, userProfile, addAddress };
