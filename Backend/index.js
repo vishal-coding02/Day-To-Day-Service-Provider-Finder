@@ -7,6 +7,7 @@ const cookieParser = require("cookie-parser");
 const userRouter = require("./routes/UsersRoutes");
 const refresTokenRouter = require("./routes/RefreshTokenRoute");
 const providersRouter = require("./routes/ProviderRoutes");
+const customerRouter = require("./routes/CustomerRequestRoutes");
 
 app.use(express.json());
 app.use(cookieParser());
@@ -23,6 +24,7 @@ mongoose
 app.use(userRouter);
 app.use(refresTokenRouter);
 app.use(providersRouter);
+app.use(customerRouter)
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
