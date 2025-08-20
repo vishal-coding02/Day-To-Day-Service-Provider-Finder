@@ -8,6 +8,7 @@ const userRouter = require("./routes/UsersRoutes");
 const refresTokenRouter = require("./routes/RefreshTokenRoute");
 const providersRouter = require("./routes/ProviderRoutes");
 const customerRouter = require("./routes/CustomerRequestRoutes");
+const compalintsRouter = require("./routes/ComplaintsRoutes")
 
 app.use(express.json());
 app.use(cookieParser());
@@ -25,6 +26,7 @@ app.use(userRouter);
 app.use(refresTokenRouter);
 app.use(providersRouter);
 app.use(customerRouter)
+app.use(compalintsRouter)
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
