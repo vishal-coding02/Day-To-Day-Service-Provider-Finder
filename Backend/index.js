@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 dotenv.config();
 const express = require("express");
 const app = express();
+const cros = require("cors")
 const cookieParser = require("cookie-parser");
 const userRouter = require("./routes/UsersRoutes");
 const refresTokenRouter = require("./routes/RefreshTokenRoute");
@@ -12,6 +13,8 @@ const compalintsRouter = require("./routes/ComplaintsRoutes")
 
 app.use(express.json());
 app.use(cookieParser());
+app.use(cros)
+
 // Server Port
 const PORT = process.env.PORT;
 
