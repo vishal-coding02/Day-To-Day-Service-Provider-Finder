@@ -10,7 +10,7 @@ async function profiderProfileCreation(req, res) {
     const newProfile = {
       userID: user._id,
       providerIdProf: req.body.idProf,
-      providerName: req.body.name,
+      providerName: req.user.name,
       providerServicesList: req.body.servicesList,
       providerImageUrl: req.body.image,
       providerBio: req.body.bio,
@@ -31,7 +31,7 @@ async function providerProfile(req, res) {
   if (req.user.type === "provider") {
     try {
       const provider = await Providers.findById({
-        _id: req.params.id,
+        userID: req.user.id,
       }).populate("userID", "userName userAddress userPhone");
 
       if (!provider) {

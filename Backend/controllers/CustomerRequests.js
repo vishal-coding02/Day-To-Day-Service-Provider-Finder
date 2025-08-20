@@ -2,8 +2,8 @@ const Users = require("../models/UserModel");
 const CustomerRequests = require("../models/CustomerModel");
 
 async function createRequest(req, res) {
-  if (req.user.type === "customer") {
-    try {
+  try {
+    if (req.user.type === "customer") {
       const user = await Users.findById(req.body.id);
       if (!user) return res.status(404).json({ error: "user not found" });
 
@@ -23,12 +23,44 @@ async function createRequest(req, res) {
       res
         .status(201)
         .json({ message: "Request created successfully", data: newRequest });
-    } catch (err) {
-      console.error("Customer Request Error:", err.message);
-      res.status(500).json({ error: "Internal server error" });
+    } else {
+      return res
+        .status(403)
+        .json({ error: "Only customers can create a request" });
     }
-  } else {
+  } catch (err) {
+    console.error("Customer Request Error:", err.message);
+    res.status(500).json({ error: "Internal server error" });
   }
 }
 
-module.exports = { createRequest };
+async function myRequest(req, res) {
+  try {
+    if (req.user.type === "customer") {
+      const requests = await CustomerRequests.find({
+        userID: req.user.id,
+      }).populate("userID", "userEmail");
+      console.log(requests);
+
+      if (!requests || requests.length === 0) {
+        return res
+          .status(404)
+          .json({ message: "No requests found for this customer" });
+      }
+
+      res.status(200).json({
+        message: "My Requests fetched successfully",
+        data: requests,
+      });
+    } else {
+      return res.status(403).json({
+        success: false,
+        message: "Only customers can see their requests",
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+}
+module.exports = { createRequest, myRequest };
