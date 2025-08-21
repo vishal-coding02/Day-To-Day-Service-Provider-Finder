@@ -1,7 +1,11 @@
 import { useState } from "react";
 import type SignUpForm from "../interfaces/SignUpInterface";
+import { useDispatch } from "react-redux";
+import { signupAction } from "../redux/reducer/AuthReducer";
+const API_URL = import.meta.env.VITE_API_URL;
 
 const SignUp = () => {
+  const dispatch = useDispatch();
   const [users, setUsers] = useState<SignUpForm>({
     name: "",
     email: "",
@@ -12,6 +16,31 @@ const SignUp = () => {
 
   const handleSignUp = () => {
     console.log(users);
+    dispatch(signupAction(users));
+
+    fetch(API_URL, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(users),
+    })
+      .then((res) => {
+        res.json();
+      })
+      .then((data) => {
+        console.log("user created", data);
+      })
+      .catch((err) => {
+        console.log("Error :", err.message);
+      });
+
+    // Reset
+    setUsers({
+      name: "",
+      email: "",
+      phone: 0,
+      userType: "customer",
+      password: "",
+    });
   };
 
   return (
