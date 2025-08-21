@@ -4,14 +4,17 @@ const { bcryptjs, generateToken } = require("../services/Auth");
 
 async function signUp(req, res) {
   try {
-    const hashPass = await bcryptjs.hash(req.body.password, 10);
+    console.log(req.body)
+    const { name, email, phone, password, userType, address } = req.body;
+
+    const hashPass = await bcryptjs.hash(password, 10);
     const newUser = {
-      userName: req.body.name,
-      userEmail: req.body.email,
-      userPhone: req.body.phone,
+      userName: name,
+      userEmail: email,
+      userPhone: phone,
       userPassword: hashPass,
-      userAddress: req.body.address,
-      userType: req.body.type,
+      userAddress: address,
+      userType: userType,
       createdAt: new Date(),
     };
     await Users.create(newUser);
@@ -88,7 +91,6 @@ async function addAddress(req, res) {
     res.status(500).json({ error: "Internal server error" });
   }
 }
-
 
 module.exports = {
   signUp,
