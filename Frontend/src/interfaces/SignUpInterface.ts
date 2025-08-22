@@ -5,3 +5,4 @@ export default interface SignUpForm {
   password: string;
   userType: string;
 }
+

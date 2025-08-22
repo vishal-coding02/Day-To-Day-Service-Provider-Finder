@@ -2,9 +2,11 @@ import { useState } from "react";
 import type SignUpForm from "../interfaces/SignUpInterface";
 import { useDispatch } from "react-redux";
 import { signupAction } from "../redux/reducer/AuthReducer";
+import { useNavigate } from "react-router";
 const API_URL = import.meta.env.VITE_API_URL;
 
 const SignUp = () => {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const [users, setUsers] = useState<SignUpForm>({
     name: "",
@@ -16,7 +18,6 @@ const SignUp = () => {
 
   const handleSignUp = () => {
     console.log(users);
-    dispatch(signupAction(users));
 
     fetch(API_URL, {
       method: "POST",
@@ -24,16 +25,21 @@ const SignUp = () => {
       body: JSON.stringify(users),
     })
       .then((res) => {
-        res.json();
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        return res.json();
       })
       .then((data) => {
         console.log("user created", data);
+
+        dispatch(signupAction({ ...users, userId: data.userId }));
+
+        navigate("/address");
       })
       .catch((err) => {
         console.log("Error :", err.message);
       });
 
-    // Reset
+    // Reset form values
     setUsers({
       name: "",
       email: "",
