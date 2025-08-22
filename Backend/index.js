@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 dotenv.config();
 const express = require("express");
 const app = express();
-const cros = require("cors");
+const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const userRouter = require("./routes/UsersRoutes");
 const refresTokenRouter = require("./routes/RefreshTokenRoute");
@@ -13,7 +13,13 @@ const compalintsRouter = require("./routes/ComplaintsRoutes");
 
 app.use(express.json());
 app.use(cookieParser());
-app.use(cros());
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST", "DELETE", "PUT", "PATCH"],
+    credentials: true,
+  })
+);
 
 // Server Port
 const PORT = process.env.PORT;
@@ -25,7 +31,7 @@ mongoose
   .catch((err) => console.error(err));
 
 // All Routes
-app.use(userRouter);
+app.use("/users", userRouter);
 app.use(refresTokenRouter);
 app.use(providersRouter);
 app.use(customerRouter);

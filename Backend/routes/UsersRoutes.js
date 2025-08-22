@@ -10,7 +10,7 @@ const { verifyToken } = require("../services/Auth");
 
 userRouter.post("/signUp", signUp);
 userRouter.post("/login", login);
-userRouter.get("/users/profile", verifyToken, userProfile);
-userRouter.post("/users/address", addAddress);
+userRouter.get("/profile", verifyToken, userProfile);
+userRouter.post("/address", addAddress);
 
 module.exports = userRouter;

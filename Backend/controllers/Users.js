@@ -4,11 +4,11 @@ const { bcryptjs, generateToken } = require("../services/Auth");
 
 async function signUp(req, res) {
   try {
-    console.log(req.body)
+    console.log(req.body);
     const { name, email, phone, password, userType, address } = req.body;
 
     const hashPass = await bcryptjs.hash(password, 10);
-    const newUser = {
+    const newUser = await Users.create({
       userName: name,
       userEmail: email,
       userPhone: phone,
@@ -16,9 +16,11 @@ async function signUp(req, res) {
       userAddress: address,
       userType: userType,
       createdAt: new Date(),
-    };
-    await Users.create(newUser);
-    res.status(201).json({ message: "User created successfully!" });
+    });
+
+    res
+      .status(201)
+      .json({ message: "User created successfully!", userId: newUser._id });
     console.log("user craeted...", newUser);
   } catch (err) {
     console.error("Signup error:", err.message);
@@ -66,16 +68,22 @@ async function userProfile(req, res) {
 
 async function addAddress(req, res) {
   try {
+    console.log("Received request body:", req.body);
     const { address, id } = req.body;
-    const stateAddress = await Address.find({ stateName: address.address });
+    console.log("ID:", id, "Address:", address);
+
+    const stateAddress = await Address.find({ city: address.city });
+    console.log("State Address found:", stateAddress);
 
     if (!stateAddress) {
       return res.status(400).json({
-        message: "Signup is restricted. Your state is not in the allowed list.",
+        message:
+          "Signup is restricted. Your state/city is not in the allowed list.",
       });
     }
 
     const user = await Users.findByIdAndUpdate(id, { userAddress: address });
+    console.log("User updated:", user);
 
     if (user) {
       return res
