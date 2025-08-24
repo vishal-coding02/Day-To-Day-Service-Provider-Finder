@@ -1,10 +1,12 @@
 import { useState } from "react";
 import type LoginForm from "../interfaces/LoginInterface";
 import { useDispatch } from "react-redux";
-import { loginAction } from "../redux/reducer/AuthReducer";
+import { useNavigate } from "react-router";
+import { jwtTokenAction, loginAction } from "../redux/reducer/AuthReducer";
 const LOGIN_API_URL = import.meta.env.VITE_LOGIN_API_URL;
 
 const Login = () => {
+  const navitage = useNavigate();
   const dispatch = useDispatch();
   const [loginData, setLoginData] = useState<LoginForm>({
     email: "",
@@ -39,7 +41,9 @@ const Login = () => {
 
     fetch(LOGIN_API_URL, {
       method: "POST",
-      headers: { "content-type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify(loginData),
     })
       .then(async (res) => {
@@ -61,7 +65,9 @@ const Login = () => {
         }
 
         console.log("Login success:", data);
+        dispatch(jwtTokenAction(data.token));
         dispatch(loginAction(data));
+        navitage("/profile");
         setErrors({ email: "", password: "", general: "" });
       })
       .catch((err) => {

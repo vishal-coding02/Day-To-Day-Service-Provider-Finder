@@ -3,6 +3,7 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
   userData: [],
   loading: false,
+  jwtToken: "",
 };
 
 const authSlice = createSlice({
@@ -17,8 +18,12 @@ const authSlice = createSlice({
       state.userData = action.payload;
       state.loading = true;
     },
+    jwtTokenAction(state, action) {
+      state.jwtToken = action.payload;
+      state.loading = true;
+    },
   },
 });
 
-export const { signupAction, loginAction } = authSlice.actions;
+export const { signupAction, loginAction, jwtTokenAction } = authSlice.actions;
 export default authSlice.reducer;

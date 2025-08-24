@@ -35,14 +35,10 @@ async function login(req, res) {
     return res.status(404).json({ message: "User not found" });
   }
 
-  if (user.userPassword !== req.body.password) {
-    return res.status(401).json({ message: "Incorrect password" });
-  }
-
   const isMatch = await bcryptjs.compare(req.body.password, user.userPassword);
   if (!isMatch) {
     console.log("Invalid credentials");
-    return res.status(400).send("Invalid credentials");
+    return res.status(401).send("Incorrect password");
   }
 
   const { accessToken, refreshToken } = generateToken(user);
@@ -57,9 +53,11 @@ async function login(req, res) {
 
 async function userProfile(req, res) {
   try {
-    if (req.user.type === "customer" || "provider") {
+    if (req.user.type === "customer" || req.user.type === "provider") {
       res.status(200).json({
-        message: `You are authorized. Welcome : ${req.user.name}`,
+        authorized: true,
+        name: req.user.name,
+        message: "You are authorized.",
       });
     } else {
       res.status(403).json({ message: "Access denied. Users only." });
