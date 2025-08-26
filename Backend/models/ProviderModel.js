@@ -13,6 +13,10 @@ const providerSchema = new mongoose.Schema({
     type: [String],
     required: true,
   },
+  status: {
+    type: String,
+    required: false,
+  },
   providerImageUrl: {
     type: String,
     required: false,

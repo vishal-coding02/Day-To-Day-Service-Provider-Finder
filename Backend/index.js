@@ -33,7 +33,7 @@ mongoose
 // All Routes
 app.use("/users", userRouter);
 app.use(refresTokenRouter);
-app.use(providersRouter);
+app.use("/providers",providersRouter);
 app.use(customerRouter);
 app.use(compalintsRouter);
 

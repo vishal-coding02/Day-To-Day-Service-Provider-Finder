@@ -1,26 +1,63 @@
 import { useEffect, useState } from "react";
-const PROFILE_API_URL = import.meta.env.VITE_PROFILE_API_URL;
+import { useSelector, useDispatch } from "react-redux";
+import { jwtTokenAction } from "../redux/reducer/AuthReducer";
 import type UserProfile from "../interfaces/UserProfileInterface";
-import { useSelector } from "react-redux";
 
-const profile = () => {
+const PROFILE_API_URL = import.meta.env.VITE_PROFILE_API_URL;
+const REFRESHTOKEN = import.meta.env.VITE_REFRESHTOKEN;
+
+const Profile = () => {
+  const dispatch = useDispatch();
   const token = useSelector((state: any) => state.auth.jwtToken);
   const [userData, setUserData] = useState<UserProfile | null>(null);
 
   useEffect(() => {
-    if (!token) return;
+    const fetchData = async () => {
+      let currentToken = token;
+      console.log("Initial token:", currentToken); // Debug
 
-    fetch(PROFILE_API_URL, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => setUserData(data))
-      .catch((err) => console.log("Error :", err.message));
-  }, [token]);
+      if (!currentToken) {
+        try {
+          const res = await fetch(REFRESHTOKEN, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+          });
+          const data = await res.json();
+          console.log("Refresh response:", data);
+          if (data.accessToken) {
+            dispatch(jwtTokenAction(data.accessToken));
+            currentToken = data.accessToken;
+            console.log("Updated token:", currentToken); 
+          } else {
+            console.log("No access token in response");
+            return;
+          }
+        } catch (err: any) {
+          console.log("Refresh failed:", err.message);
+          return;
+        }
+      }
+
+      try {
+        const res = await fetch(PROFILE_API_URL, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${currentToken}`,
+          },
+          credentials: "include",
+        });
+        const data = await res.json();
+        console.log("Profile response:", data); 
+        setUserData(data);
+      } catch (err: any) {
+        console.log("Profile fetch error:", err.message);
+      }
+    };
+
+    fetchData();
+  }, [token, dispatch]);
 
   return (
     <div>
@@ -31,4 +68,4 @@ const profile = () => {
   );
 };
 
-export default profile;
+export default Profile;

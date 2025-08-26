@@ -15,12 +15,15 @@ async function signUp(req, res) {
       userPassword: hashPass,
       userAddress: address,
       userType: userType,
+      status: "pending",
       createdAt: new Date(),
     });
 
-    res
-      .status(201)
-      .json({ message: "User created successfully!", userId: newUser._id });
+    res.status(201).json({
+      message: "User created successfully!",
+      type: newUser.userType,
+      userId: newUser._id,
+    });
     console.log("user craeted...", newUser);
   } catch (err) {
     console.error("Signup error:", err.message);
@@ -42,12 +45,14 @@ async function login(req, res) {
   }
 
   const { accessToken, refreshToken } = generateToken(user);
+  console.log("Setting cookie with refreshToken:", refreshToken);
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
-    secure: true,
-    sameSite: "Strict",
-    path: "/refreshToken",
+    secure: false,
+    sameSite: "lax",
+    path: "/",
   });
+  console.log("Set-Cookie header:", res.getHeaders()["set-cookie"]);
   res.json({ token: accessToken });
 }
 
