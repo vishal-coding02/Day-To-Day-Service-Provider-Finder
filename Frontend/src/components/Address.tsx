@@ -2,12 +2,15 @@ import { useState } from "react";
 const ADDRESS_API_URL = import.meta.env.VITE_ADDRESS_API_URL;
 import type AddressForm from "../interfaces/AddressInterfaces";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router";
 
 const AddressVerification = () => {
+  const navitage = useNavigate();
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const userId = useSelector((state: any) => state.auth.userData.userId);
+  const userType = useSelector((state: any) => state.auth.userData.type);
   const [addressData, setAddressData] = useState<AddressForm>({
     addressType: "current",
     street: "",
@@ -54,6 +57,9 @@ const AddressVerification = () => {
           setSuccessMsg(null);
         }
         console.log("Response from backend:", body);
+        if (userType == "provider") {
+          navitage("/providerProfileCreation");
+        }
       })
       .catch((err) => {
         console.log("Error :", err.message);

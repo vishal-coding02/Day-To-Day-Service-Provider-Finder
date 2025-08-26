@@ -3,19 +3,21 @@ const Users = require("../models/UserModel");
 
 async function profiderProfileCreation(req, res) {
   try {
-    const user = await Users.findById(req.body.id);
+    const { id, name, idProf, servicesList, image, bio, totalJobs, avgRating } =
+      req.body;
+    const user = await Users.findById(id);
 
     if (!user) return res.status(400).json({ error: "user not found" });
 
     const newProfile = {
       userID: user._id,
-      providerIdProf: req.body.idProf,
-      providerName: req.user.name,
-      providerServicesList: req.body.servicesList,
-      providerImageUrl: req.body.image,
-      providerBio: req.body.bio,
-      providerTotalJobs: req.body.totalJobs,
-      providerAvgRating: req.body.avgRating,
+      providerIdProf: idProf,
+      providerName: name,
+      providerServicesList: servicesList,
+      providerImageUrl: image,
+      providerBio: bio,
+      providerTotalJobs: totalJobs,
+      providerAvgRating: avgRating,
       createdAt: new Date(),
     };
     await Providers.create(newProfile);

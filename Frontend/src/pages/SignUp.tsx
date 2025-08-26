@@ -31,7 +31,9 @@ const SignUp = () => {
       .then((data) => {
         console.log("user created", data);
 
-        dispatch(signupAction({ ...users, userId: data.userId }));
+        dispatch(
+          signupAction({ ...users, userId: data.userId, type: data.type })
+        );
 
         navigate("/address");
       })

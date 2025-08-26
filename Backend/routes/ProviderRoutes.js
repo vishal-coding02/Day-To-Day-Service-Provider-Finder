@@ -6,9 +6,9 @@ const {
 } = require("../controllers/Providers");
 const { verifyToken } = require("../services/Auth");
 
-providersRouter.post("/providers/profileCreation", profiderProfileCreation);
+providersRouter.post("/profileCreation", profiderProfileCreation);
 providersRouter.get(
-  "/providers/providerProfile/:id",
+  "/providerProfile/:id",
   verifyToken,
   providerProfile
 );
