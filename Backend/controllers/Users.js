@@ -22,6 +22,7 @@ async function signUp(req, res) {
       message: "User created successfully!",
       type: newUser.userType,
       userId: newUser._id,
+      phone: newUser.userPhone,
     });
     console.log("user craeted...", newUser);
   } catch (err) {

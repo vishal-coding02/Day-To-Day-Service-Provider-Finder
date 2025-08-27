@@ -34,7 +34,7 @@ const SignUp = () => {
           signupAction({ ...users, userId: data.userId, type: data.type })
         );
 
-        navigate("/address");
+        navigate("/otpVerification");
       })
       .catch((err) => {
         console.log("Error :", err.message);
