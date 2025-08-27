@@ -5,12 +5,11 @@ const { bcryptjs, generateToken } = require("../services/Auth");
 async function signUp(req, res) {
   try {
     console.log(req.body);
-    const { name, email, phone, password, userType, address } = req.body;
+    const { name, phone, password, userType, address } = req.body;
 
     const hashPass = await bcryptjs.hash(password, 10);
     const newUser = await Users.create({
       userName: name,
-      userEmail: email,
       userPhone: phone,
       userPassword: hashPass,
       userAddress: address,
@@ -32,7 +31,7 @@ async function signUp(req, res) {
 }
 
 async function login(req, res) {
-  const user = await Users.findOne({ userEmail: req.body.email });
+  const user = await Users.findOne({ userPhone: req.body.phone });
   if (!user) {
     console.log("User not found");
     return res.status(404).json({ message: "User not found" });

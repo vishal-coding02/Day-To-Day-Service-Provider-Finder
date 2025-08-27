@@ -1,5 +1,5 @@
 const PPC_API_URL = import.meta.env.VITE_PPC_API_URL;
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useSelector } from "react-redux";
 import type ProviderProfileCreation from "../interfaces/PPCInterface";
 import { useNavigate } from "react-router";
@@ -7,10 +7,8 @@ import { useNavigate } from "react-router";
 const PPC = () => {
   const navigate = useNavigate();
   const userId = useSelector((state: any) => state.auth.userData.userId);
-  console.log(
-    "Redux userData:",
-    useSelector((state: any) => state.auth.userData)
-  );
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const aadhaarInputRef = useRef<HTMLInputElement>(null);
 
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState<ProviderProfileCreation>({
@@ -21,6 +19,12 @@ const PPC = () => {
     image: "",
     bio: "",
   });
+
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [customService, setCustomService] = useState<string>("");
+  const [showDropdown, setShowDropdown] = useState<boolean>(false);
+  const [aadhaarPreview, setAadhaarPreview] = useState<string>("");
+  const [imagePreview, setImagePreview] = useState<string>("");
 
   const handleInputChange = (
     e:
@@ -34,15 +38,67 @@ const PPC = () => {
     });
   };
 
-  const handleServiceChange = (service: string) => {
-    const updatedServices = formData.servicesList.includes(service)
-      ? formData.servicesList.filter((s) => s !== service)
-      : [...formData.servicesList, service];
+  const handleServiceSelect = (service: string) => {
+    if (!formData.servicesList.includes(service)) {
+      setFormData({
+        ...formData,
+        servicesList: [...formData.servicesList, service],
+      });
+    }
+    setSearchTerm("");
+    setShowDropdown(false);
+  };
 
+  const handleAddCustomService = () => {
+    if (
+      customService.trim() &&
+      !formData.servicesList.includes(customService.trim())
+    ) {
+      setFormData({
+        ...formData,
+        servicesList: [...formData.servicesList, customService.trim()],
+      });
+      setCustomService("");
+    }
+  };
+
+  const removeService = (service: string) => {
     setFormData({
       ...formData,
-      servicesList: updatedServices,
+      servicesList: formData.servicesList.filter((s) => s !== service),
     });
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const result = reader.result as string;
+        setImagePreview(result);
+        setFormData({
+          ...formData,
+          image: result,
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleAadhaarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const result = reader.result as string;
+        setAadhaarPreview(result);
+        setFormData({
+          ...formData,
+          idProf: result,
+        });
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const nextStep = () => {
@@ -87,11 +143,20 @@ const PPC = () => {
     "Cleaning",
     "Painting",
     "Gardening",
-    "Moving",
-    "Repair",
-    "Installation",
-    "Consultation",
+    "Moving & Shifting",
+    "Appliance Repair",
+    "AC & HVAC Services",
+    "Pest Control",
+    "Home Renovation",
+    "Interior Design",
+    "Installation & Assembly",
+    "General Repair & Maintenance",
+    "Consultation & Inspection",
   ];
+
+  const filteredServices = serviceOptions.filter((service) =>
+    service.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4">
@@ -192,37 +257,58 @@ const PPC = () => {
                     </div>
 
                     <div>
-                      <label
-                        htmlFor="providerIdProf"
-                        className="block text-sm font-medium text-gray-700 mb-2"
-                      >
-                        Professional ID (Aadhaar) *
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Aadhaar Card Upload *
                       </label>
-                      <div className="relative">
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                          <svg
-                            className="h-5 w-5 text-gray-400"
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 20 20"
-                            fill="currentColor"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M10 1a4 4 0 00-4 4v1H5a1 1 0 00-.994.89l-1 9A1 1 0 004 18h12a1 1 0 00.994-1.11l-1-9A1 1 0 0015 6h-1V5a4 4 0 00-4-4zm2 5V5a2 2 0 10-4 0v1h4zm-6 3a1 1 0 112 0 1 1 0 01-2 0zm7-1a1 1 0 100 2 1 1 0 000-2z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                        </div>
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
                         <input
-                          id="providerIdProf"
-                          name="idProf"
-                          type="text"
-                          value={formData.idProf}
-                          onChange={handleInputChange}
-                          placeholder="e.g., AADHAR_XXXX1234"
-                          className="pl-10 w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition duration-200"
-                          required
+                          type="file"
+                          ref={aadhaarInputRef}
+                          onChange={handleAadhaarUpload}
+                          accept="image/*"
+                          className="hidden"
                         />
+
+                        {aadhaarPreview ? (
+                          <div className="flex flex-col items-center">
+                            <img
+                              src={aadhaarPreview}
+                              alt="Aadhaar preview"
+                              className="h-32 object-contain mb-3 border rounded"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => aadhaarInputRef.current?.click()}
+                              className="text-blue-600 text-sm hover:text-blue-800"
+                            >
+                              Change Aadhaar
+                            </button>
+                          </div>
+                        ) : (
+                          <div
+                            className="cursor-pointer"
+                            onClick={() => aadhaarInputRef.current?.click()}
+                          >
+                            <svg
+                              className="w-12 h-12 mx-auto mb-3 text-gray-400"
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 20 20"
+                              fill="currentColor"
+                            >
+                              <path
+                                fillRule="evenodd"
+                                d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.121-1.121A2 2 0 0011.172 3H8.828a2 2 0 00-1.414.586L6.293 4.707A1 1 0 015.586 5H4zm6 9a3 3 0 100-6 3 3 0 000 6z"
+                                clipRule="evenodd"
+                              />
+                            </svg>
+                            <p className="text-sm text-gray-600">
+                              Click to upload Aadhaar card
+                            </p>
+                            <p className="text-xs text-gray-500 mt-1">
+                              PNG, JPG up to 5MB
+                            </p>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -247,36 +333,105 @@ const PPC = () => {
                   </h3>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-4">
-                      Select Services You Offer *
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Search and Add Services *
                     </label>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                      {serviceOptions.map((service: string) => (
-                        <div
-                          key={service}
-                          className={`flex items-center p-3 rounded-lg transition-colors cursor-pointer ${
-                            formData.servicesList.includes(service)
-                              ? "bg-blue-100 border border-blue-300"
-                              : "bg-gray-50 border border-gray-200 hover:bg-blue-50"
-                          }`}
-                          onClick={() => handleServiceChange(service)}
-                        >
-                          <input
-                            id={service}
-                            name="providerServicesList"
-                            type="checkbox"
-                            checked={formData.servicesList.includes(service)}
-                            onChange={() => handleServiceChange(service)}
-                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 rounded"
-                          />
-                          <label
-                            htmlFor={service}
-                            className="ml-3 block text-sm font-medium text-gray-700 cursor-pointer"
+
+                    <div className="relative mb-4">
+                      <div className="relative">
+                        <input
+                          type="text"
+                          value={searchTerm}
+                          onChange={(e) => {
+                            setSearchTerm(e.target.value);
+                            setShowDropdown(true);
+                          }}
+                          onFocus={() => setShowDropdown(true)}
+                          placeholder="Search for services (e.g., Plumber, Electrician)"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition duration-200"
+                        />
+                        <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                          <svg
+                            className="h-5 w-5 text-gray-400"
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 20 20"
+                            fill="currentColor"
                           >
-                            {service}
-                          </label>
+                            <path
+                              fillRule="evenodd"
+                              d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
                         </div>
-                      ))}
+                      </div>
+
+                      {showDropdown && searchTerm && (
+                        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-auto">
+                          {filteredServices.length > 0 ? (
+                            filteredServices.map((service) => (
+                              <div
+                                key={service}
+                                className="px-4 py-2 hover:bg-blue-50 cursor-pointer"
+                                onClick={() => handleServiceSelect(service)}
+                              >
+                                {service}
+                              </div>
+                            ))
+                          ) : (
+                            <div className="px-4 py-2 text-gray-500">
+                              No services found. Add a custom service below.
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex gap-2 mb-4">
+                      <input
+                        type="text"
+                        value={customService}
+                        onChange={(e) => setCustomService(e.target.value)}
+                        placeholder="Add custom service"
+                        className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleAddCustomService}
+                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                      >
+                        Add
+                      </button>
+                    </div>
+
+                    {/* Selected Services */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Selected Services:
+                      </label>
+                      {formData.servicesList.length > 0 ? (
+                        <div className="flex flex-wrap gap-2">
+                          {formData.servicesList.map((service) => (
+                            <span
+                              key={service}
+                              className="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
+                            >
+                              {service}
+                              <button
+                                type="button"
+                                onClick={() => removeService(service)}
+                                className="ml-2 text-blue-600 hover:text-blue-800"
+                              >
+                                ×
+                              </button>
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-gray-500 text-sm">
+                          No services selected yet.
+                        </p>
+                      )}
                     </div>
                   </div>
 
@@ -309,24 +464,39 @@ const PPC = () => {
                   <div className="grid md:grid-cols-2 gap-8">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-4">
-                        Profile Image URL
+                        Profile Photo
                       </label>
-                      <div className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
-                        {formData.image ? (
-                          <>
+                      <div className="flex flex-col items-center justify-center w-full border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                        <input
+                          type="file"
+                          ref={fileInputRef}
+                          onChange={handleImageUpload}
+                          accept="image/*"
+                          className="hidden"
+                        />
+
+                        {imagePreview ? (
+                          <div className="flex flex-col items-center">
                             <img
-                              src={formData.image}
+                              src={imagePreview}
                               alt="Profile preview"
-                              className="h-24 w-24 rounded-full object-cover mb-3"
+                              className="h-32 w-32 rounded-full object-cover mb-3 border-4 border-white shadow-md"
                             />
-                            <p className="text-sm text-green-600 mb-2">
-                              Image URL added successfully
-                            </p>
-                          </>
+                            <button
+                              type="button"
+                              onClick={() => fileInputRef.current?.click()}
+                              className="text-blue-600 text-sm hover:text-blue-800"
+                            >
+                              Change Photo
+                            </button>
+                          </div>
                         ) : (
-                          <>
+                          <div
+                            className="cursor-pointer py-8"
+                            onClick={() => fileInputRef.current?.click()}
+                          >
                             <svg
-                              className="w-12 h-12 mb-4 text-gray-400"
+                              className="w-12 h-12 mx-auto mb-3 text-gray-400"
                               xmlns="http://www.w3.org/2000/svg"
                               viewBox="0 0 20 20"
                               fill="currentColor"
@@ -337,23 +507,14 @@ const PPC = () => {
                                 clipRule="evenodd"
                               />
                             </svg>
-                            <p className="text-sm text-gray-500 mb-2">
-                              Enter image URL below
+                            <p className="text-sm text-gray-600">
+                              Click to upload profile photo
                             </p>
-                          </>
+                            <p className="text-xs text-gray-500 mt-1">
+                              PNG, JPG up to 5MB
+                            </p>
+                          </div>
                         )}
-                        <input
-                          type="text"
-                          placeholder="https://example.com/photos/yourname.jpg"
-                          value={formData.image}
-                          onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              image: e.target.value,
-                            })
-                          }
-                          className="w-full px-3 py-2 border border-gray-300 rounded text-sm"
-                        />
                       </div>
                     </div>
 
@@ -416,10 +577,10 @@ const PPC = () => {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-600 font-medium">
-                          Professional ID:
+                          Aadhaar Verified:
                         </span>
                         <span className="font-semibold">
-                          {formData.idProf || "Not provided"}
+                          {aadhaarPreview ? "✓ Uploaded" : "Not provided"}
                         </span>
                       </div>
                       <div className="flex justify-between">
@@ -434,10 +595,10 @@ const PPC = () => {
                       </div>
                       <div className="flex justify-between items-start">
                         <span className="text-gray-600 font-medium">
-                          Profile Image:
+                          Profile Photo:
                         </span>
-                        <span className="font-semibold text-right max-w-xs truncate">
-                          {formData.image || "No image URL provided"}
+                        <span className="font-semibold text-right max-w-xs">
+                          {imagePreview ? "✓ Uploaded" : "Not provided"}
                         </span>
                       </div>
                       <div>

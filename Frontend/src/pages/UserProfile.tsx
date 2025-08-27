@@ -28,7 +28,7 @@ const Profile = () => {
           if (data.accessToken) {
             dispatch(jwtTokenAction(data.accessToken));
             currentToken = data.accessToken;
-            console.log("Updated token:", currentToken); 
+            console.log("Updated token:", currentToken);
           } else {
             console.log("No access token in response");
             return;
@@ -49,7 +49,7 @@ const Profile = () => {
           credentials: "include",
         });
         const data = await res.json();
-        console.log("Profile response:", data); 
+        console.log("Profile response:", data);
         setUserData(data);
       } catch (err: any) {
         console.log("Profile fetch error:", err.message);
