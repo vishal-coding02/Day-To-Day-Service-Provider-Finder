@@ -8,6 +8,7 @@ import PPC from "./pages/ProviderProfileCreation.tsx";
 import Address from "./components/Address.tsx";
 import { Provider } from "react-redux";
 import store from "./redux/Store.ts";
+import OTPVerification from "./pages/Otp.tsx";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 const router = createBrowserRouter([
@@ -30,6 +31,10 @@ const router = createBrowserRouter([
   {
     path: "/providerProfileCreation",
     element: <PPC />,
+  },
+  {
+    path: "/otpVerification",
+    element: <OTPVerification />,
   },
 ]);
 createRoot(document.getElementById("root")!).render(
