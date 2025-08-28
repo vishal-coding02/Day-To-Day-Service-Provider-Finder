@@ -10,6 +10,7 @@ import { Provider } from "react-redux";
 import store from "./redux/Store.ts";
 import OTPVerification from "./pages/Otp.tsx";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import AdminDashboard from "./admin/AdminDashBoard.tsx";
 
 const router = createBrowserRouter([
   {
@@ -35,6 +36,10 @@ const router = createBrowserRouter([
   {
     path: "/otpVerification",
     element: <OTPVerification />,
+  },
+  {
+    path: "/adminDashBoard",
+    element: <AdminDashboard />,
   },
 ]);
 createRoot(document.getElementById("root")!).render(

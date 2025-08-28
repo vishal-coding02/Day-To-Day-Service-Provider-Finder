@@ -27,8 +27,6 @@ const usersSchema = new mongoose.Schema({
       country: { type: String, required: true },
       zipCode: { type: Number, required: true },
       city: { type: String, required: true },
-      cityId: { type: Number, required: true },
-      stateId: { type: Number, required: true },
       state: { type: String, required: true },
     },
     required: false,

@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 const VERIFY = import.meta.env.VITE_VERIFY_OTP_URL;
 
@@ -8,8 +7,6 @@ const OTPVerification = () => {
   const [otp, setOtp] = useState<string[]>(["", "", "", "", "", ""]);
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-
-  const phone = useSelector((state: any) => state.auth.userData.phone);
 
   const handleChange = (element: HTMLInputElement, index: number) => {
     if (isNaN(Number(element.value))) return false;
@@ -38,14 +35,14 @@ const OTPVerification = () => {
 
   const handleOtpVerification = () => {
     const otpValue = otp.join("");
-
+    console.log("Sent OTP:", otpValue); // Check yeh value
+    console.log("Sent OTP Type:", typeof otpValue); // Ensure string hai
     fetch(VERIFY, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        phone,
         otp: otpValue,
       }),
     })
