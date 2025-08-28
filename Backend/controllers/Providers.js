@@ -18,6 +18,7 @@ async function profiderProfileCreation(req, res) {
       providerBio: bio,
       providerTotalJobs: totalJobs,
       providerAvgRating: avgRating,
+      status: "pending",
       createdAt: new Date(),
     };
     await Providers.create(newProfile);

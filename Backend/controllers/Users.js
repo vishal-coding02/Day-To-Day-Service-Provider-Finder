@@ -14,7 +14,6 @@ async function signUp(req, res) {
       userPassword: hashPass,
       userAddress: address,
       userType: userType,
-      status: "pending",
       createdAt: new Date(),
     });
 
@@ -22,7 +21,6 @@ async function signUp(req, res) {
       message: "User created successfully!",
       type: newUser.userType,
       userId: newUser._id,
-      phone: newUser.userPhone,
     });
     console.log("user craeted...", newUser);
   } catch (err) {
@@ -58,7 +56,11 @@ async function login(req, res) {
 
 async function userProfile(req, res) {
   try {
-    if (req.user.type === "customer" || req.user.type === "provider") {
+    if (
+      req.user.type === "customer" ||
+      req.user.type === "provider" ||
+      req.user.type === "admin"
+    ) {
       res.status(200).json({
         authorized: true,
         name: req.user.name,

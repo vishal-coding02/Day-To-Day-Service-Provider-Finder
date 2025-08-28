@@ -1,9 +1,9 @@
 const mongoose = require("mongoose");
 
 const optSchema = new mongoose.Schema({
-  opt: { type: Number, required: true },
+  otp: { type: String, required: true },
 });
 
-const Otp = mongoose.model("otpverification", optSchema);
+const Otp = mongoose.model("otpverifications", optSchema);
 
 module.exports = Otp;

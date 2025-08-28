@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type LoginForm from "../interfaces/LoginInterface";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router";
 import { jwtTokenAction, loginAction } from "../redux/reducer/AuthReducer";
 const LOGIN_API_URL = import.meta.env.VITE_LOGIN_API_URL;
@@ -8,6 +8,7 @@ const LOGIN_API_URL = import.meta.env.VITE_LOGIN_API_URL;
 const Login = () => {
   const navitage = useNavigate();
   const dispatch = useDispatch();
+  const userType = useSelector((state: any) => state.auth.userData.type);
   const [loginData, setLoginData] = useState<LoginForm>({
     phone: "",
     password: "",
@@ -66,8 +67,14 @@ const Login = () => {
 
         console.log("Login success:", data);
         dispatch(jwtTokenAction(data.token));
+        localStorage.setItem("accessToken", data.token);
         dispatch(loginAction(data));
-        navitage("/profile");
+
+        if (userType == "admin") {
+          navitage("/amdinDashBoard");
+        } else {
+          navitage("/profile");
+        }
         setErrors({ phone: "", password: "", general: "" });
       })
       .catch((err) => {
