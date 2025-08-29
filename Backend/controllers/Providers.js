@@ -52,4 +52,9 @@ async function providerProfile(req, res) {
   }
 }
 
-module.exports = { profiderProfileCreation, providerProfile };
+
+
+module.exports = {
+  profiderProfileCreation,
+  providerProfile,
+};
