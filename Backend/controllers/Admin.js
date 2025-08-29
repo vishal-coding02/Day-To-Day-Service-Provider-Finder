@@ -37,4 +37,29 @@ async function pendingProviders(req, res) {
   }
 }
 
-module.exports = { allUsers, pendingProviders };
+async function reviewProviderProfile(req, res) {
+  try {
+    if (req.user.type === "admin") {
+      const userId = req.params.id;
+
+      const user = await Users.findById(userId);
+      const provider = await Providers.findOne({ userID: userId });
+
+      if (!user && !provider) {
+        return res.status(404).json({ error: "User/Provider not found" });
+      }
+
+      res.status(200).json({
+        userData: user || null,
+        providerData: provider || null,
+      });
+    } else {
+      res.status(403).json({ message: "Access denied. Admin only." });
+    }
+  } catch (err) {
+    console.log("Error :", err.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
+
+module.exports = { allUsers, pendingProviders, reviewProviderProfile };
