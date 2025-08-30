@@ -1,5 +1,6 @@
 const Users = require("../models/UserModel");
 const Address = require("../models/AddressModel");
+const Providers = require("../models/ProviderModel");
 const { bcryptjs, generateToken } = require("../services/Auth");
 
 async function signUp(req, res) {
@@ -36,6 +37,13 @@ async function login(req, res) {
     return res.status(404).json({ message: "User not found" });
   }
 
+  const provider = await Providers.findOne({ userID: user._id });
+
+  if (!user) {
+    console.log("provider not found");
+    return res.status(404).json({ message: "User not found" });
+  }
+
   const isMatch = await bcryptjs.compare(req.body.password, user.userPassword);
   if (!isMatch) {
     console.log("Invalid credentials");
@@ -51,7 +59,11 @@ async function login(req, res) {
     path: "/",
   });
   console.log("Set-Cookie header:", res.getHeaders()["set-cookie"]);
-  res.json({ token: accessToken });
+  res.json({
+    token: accessToken,
+    userID: user._id,
+    providerStatus: provider.status,
+  });
 }
 
 async function userProfile(req, res) {

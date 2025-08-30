@@ -7,10 +7,10 @@ const {
   addAddress,
 } = require("../controllers/Users");
 const { verifyToken } = require("../services/Auth");
-const pendingProvider = require("../middlewares/AdminMiddleware");
+// const pendingProvider = require("../middlewares/AdminMiddleware");
 
 userRouter.post("/signUp", signUp);
-userRouter.post("/login", pendingProvider, login);
+userRouter.post("/login", login);
 userRouter.get("/profile", verifyToken, userProfile);
 userRouter.post("/address", addAddress);
 

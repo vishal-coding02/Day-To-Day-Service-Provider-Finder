@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type LoginForm from "../interfaces/LoginInterface";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
 import { jwtTokenAction, loginAction } from "../redux/reducer/AuthReducer";
 const LOGIN_API_URL = import.meta.env.VITE_LOGIN_API_URL;
@@ -8,7 +8,7 @@ const LOGIN_API_URL = import.meta.env.VITE_LOGIN_API_URL;
 const Login = () => {
   const navitage = useNavigate();
   const dispatch = useDispatch();
-  const userType = useSelector((state: any) => state.auth.userData.type);
+  // const userType = useSelector((state: any) => state.auth.userData.type);
   const [loginData, setLoginData] = useState<LoginForm>({
     phone: "",
     password: "",
@@ -66,14 +66,21 @@ const Login = () => {
         }
 
         console.log("Login success:", data);
+
         dispatch(jwtTokenAction(data.token));
+
         localStorage.setItem("accessToken", data.token);
+        localStorage.setItem("providerStatus", data.providerStatus);
+        console.log("provider status", data.providerStatus);
+        localStorage.setItem("userID", data.userID);
+        console.log("userID", data.userID);
+
         dispatch(loginAction(data));
 
-        if (userType == "admin") {
-          navitage("/amdinDashBoard");
+        if (data.providerStatus == "pending") {
+          navitage(`/providerReviews/${data.userID}`);
         } else {
-          navitage("/profile");
+          navitage("/providerDashBoard");
         }
         setErrors({ phone: "", password: "", general: "" });
       })
