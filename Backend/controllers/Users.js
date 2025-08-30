@@ -1,21 +1,20 @@
 const Users = require("../models/UserModel");
 const Address = require("../models/AddressModel");
+const Providers = require("../models/ProviderModel");
 const { bcryptjs, generateToken } = require("../services/Auth");
 
 async function signUp(req, res) {
   try {
     console.log(req.body);
-    const { name, email, phone, password, userType, address } = req.body;
+    const { name, phone, password, userType, address } = req.body;
 
     const hashPass = await bcryptjs.hash(password, 10);
     const newUser = await Users.create({
       userName: name,
-      userEmail: email,
       userPhone: phone,
       userPassword: hashPass,
       userAddress: address,
       userType: userType,
-      status: "pending",
       createdAt: new Date(),
     });
 
@@ -32,9 +31,16 @@ async function signUp(req, res) {
 }
 
 async function login(req, res) {
-  const user = await Users.findOne({ userEmail: req.body.email });
+  const user = await Users.findOne({ userPhone: req.body.phone });
   if (!user) {
     console.log("User not found");
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  const provider = await Providers.findOne({ userID: user._id });
+
+  if (!user) {
+    console.log("provider not found");
     return res.status(404).json({ message: "User not found" });
   }
 
@@ -53,12 +59,20 @@ async function login(req, res) {
     path: "/",
   });
   console.log("Set-Cookie header:", res.getHeaders()["set-cookie"]);
-  res.json({ token: accessToken });
+  res.json({
+    token: accessToken,
+    userID: user._id,
+    providerStatus: provider.status,
+  });
 }
 
 async function userProfile(req, res) {
   try {
-    if (req.user.type === "customer" || req.user.type === "provider") {
+    if (
+      req.user.type === "customer" ||
+      req.user.type === "provider" ||
+      req.user.type === "admin"
+    ) {
       res.status(200).json({
         authorized: true,
         name: req.user.name,

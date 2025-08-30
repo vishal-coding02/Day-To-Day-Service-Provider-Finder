@@ -7,6 +7,7 @@ const {
   addAddress,
 } = require("../controllers/Users");
 const { verifyToken } = require("../services/Auth");
+// const pendingProvider = require("../middlewares/AdminMiddleware");
 
 userRouter.post("/signUp", signUp);
 userRouter.post("/login", login);

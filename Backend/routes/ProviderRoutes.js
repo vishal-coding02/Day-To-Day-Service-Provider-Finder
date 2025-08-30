@@ -3,14 +3,14 @@ const providersRouter = express();
 const {
   profiderProfileCreation,
   providerProfile,
+  providerDashBoard,
+  providerUnderReview,
 } = require("../controllers/Providers");
 const { verifyToken } = require("../services/Auth");
 
 providersRouter.post("/profileCreation", profiderProfileCreation);
-providersRouter.get(
-  "/providerProfile/:id",
-  verifyToken,
-  providerProfile
-);
+providersRouter.get("/providerProfile/:id", verifyToken, providerProfile);
+providersRouter.get("/providerDashBoard", verifyToken, providerDashBoard);
+providersRouter.get("/providerUnderReview/:id", verifyToken, providerUnderReview);
 
 module.exports = providersRouter;

@@ -6,12 +6,13 @@ const app = express();
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const userRouter = require("./routes/UsersRoutes");
-const refresTokenRouter = require("./routes/RefreshTokenRoute");
+// const refresTokenRouter = require("./routes/RefreshTokenRoute");
 const providersRouter = require("./routes/ProviderRoutes");
 const customerRouter = require("./routes/CustomerRequestRoutes");
 const compalintsRouter = require("./routes/ComplaintsRoutes");
+const otpRouter = require("./routes/OtpRoute");
+const adminRouter = require("./routes/AdminRoutes");
 
-app.use(express.json());
 app.use(cookieParser());
 app.use(
   cors({
@@ -20,6 +21,8 @@ app.use(
     credentials: true,
   })
 );
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ limit: "10mb", extended: true }));
 
 // Server Port
 const PORT = process.env.PORT;
@@ -32,10 +35,12 @@ mongoose
 
 // All Routes
 app.use("/users", userRouter);
-app.use(refresTokenRouter);
-app.use("/providers",providersRouter);
+// app.use(refresTokenRouter);
+app.use("/providers", providersRouter);
 app.use(customerRouter);
 app.use(compalintsRouter);
+app.use(otpRouter);
+app.use("/admin", adminRouter);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
