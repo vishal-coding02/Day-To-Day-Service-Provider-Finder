@@ -4,12 +4,12 @@ const CustomerRequests = require("../models/CustomerModel");
 async function createRequest(req, res) {
   try {
     if (req.user.type === "customer") {
-      const user = await Users.findById(req.body.id);
+      const user = await Users.findById(req.user.id);
       if (!user) return res.status(404).json({ error: "user not found" });
 
       const newRequest = {
         userID: user._id,
-        customerName: user.userName,
+        customerName: user.userName || req.body.name,
         customerPrice: req.body.price,
         customerMedia: req.body.media,
         customerServicesList: req.body.serviceType,

@@ -39,9 +39,9 @@ async function login(req, res) {
 
   const provider = await Providers.findOne({ userID: user._id });
 
-  if (!user) {
+  if (!provider && user.userType === "provider") {
     console.log("provider not found");
-    return res.status(404).json({ message: "User not found" });
+    return res.status(404).json({ message: "Provider not found" });
   }
 
   const isMatch = await bcryptjs.compare(req.body.password, user.userPassword);
@@ -51,18 +51,18 @@ async function login(req, res) {
   }
 
   const { accessToken, refreshToken } = generateToken(user);
-  console.log("Setting cookie with refreshToken:", refreshToken);
-  res.cookie("refreshToken", refreshToken, {
-    httpOnly: true,
-    secure: false,
-    sameSite: "lax",
-    path: "/",
-  });
-  console.log("Set-Cookie header:", res.getHeaders()["set-cookie"]);
+  // console.log("Setting cookie with refreshToken:", refreshToken);
+  // res.cookie("refreshToken", refreshToken, {
+  //   httpOnly: true,
+  //   secure: false,
+  //   sameSite: "lax",
+  //   path: "/",
+  // });
+  // console.log("Set-Cookie header:", res.getHeaders()["set-cookie"]);
   res.json({
     token: accessToken,
     userID: user._id,
-    providerStatus: provider.status,
+    providerStatus: provider ? provider.status : null,
     userType: user.userType,
   });
 }

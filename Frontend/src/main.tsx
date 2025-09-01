@@ -15,6 +15,8 @@ import ReviewProviderProfile from "./admin/ReviewProviderProfile.tsx";
 import ProviderDashBoard from "./pages/ProviderDashBoard.tsx";
 import ProviderReviewPending from "./components/ProviderReviewPending.tsx";
 import HomePage from "./pages/HomePage.tsx";
+import FindProviders from "./pages/FindProviders.tsx";
+import CreateCustomerRequest from "./pages/CreateCustomerRequest.tsx";
 
 const router = createBrowserRouter([
   {
@@ -60,6 +62,14 @@ const router = createBrowserRouter([
   {
     path: "/providerReviews/:id",
     element: <ProviderReviewPending />,
+  },
+  {
+    path: "/findProviders",
+    element: <FindProviders />,
+  },
+  {
+    path: "/postRequirement",
+    element: <CreateCustomerRequest />,
   },
 ]);
 
