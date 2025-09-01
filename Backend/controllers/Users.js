@@ -63,6 +63,7 @@ async function login(req, res) {
     token: accessToken,
     userID: user._id,
     providerStatus: provider.status,
+    userType: user.userType,
   });
 }
 
