@@ -1,50 +1,43 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
 import NavBar from "../components/layout/NavBar";
 import Footer from "../components/layout/Footer";
+const FIND_PROVIDERS_URL = import.meta.env.VITE_FIND_PROVIDERS_URL;
+import type { Provider } from "../interfaces/CustomerRequestInterface";
 
 const FindProviders = () => {
-  // Sample provider data
-  const providers = [
-    {
-      id: 1,
-      name: "Sarah Johnson",
-      service: "Home Cleaning",
-      rating: 4.8,
-      reviews: 124,
-      bio: "Professional home cleaner with 5+ years of experience. Specialized in deep cleaning and organization.",
-      price: "$45/hour",
-      image:
-        "https://images.unsplash.com/photo-1551836026-d5c8c5ab235e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=600&q=80",
-    },
-    {
-      id: 2,
-      name: "Michael Chen",
-      service: "Plumbing",
-      rating: 4.6,
-      reviews: 89,
-      bio: "Licensed plumber with expertise in pipe repair, installation, and maintenance. Available 24/7 for emergencies.",
-      price: "$75/hour",
-      image:
-        "https://images.unsplash.com/photo-1585747861815-399b5c8b45a1?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=600&q=80",
-    },
-    {
-      id: 3,
-      name: "Jessica Williams",
-      service: "Tutoring",
-      rating: 4.9,
-      reviews: 156,
-      bio: "Certified math tutor with Master's degree in Education. Specializing in high school and college level mathematics.",
-      price: "$60/hour",
-      image:
-        "https://images.unsplash.com/photo-1577896851231-70ef18881754?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=600&q=80",
-    },
-  ];
-
   // State for search and filters
+  const token = useSelector((state: any) => state.auth.jwtToken);
+  const accessToken = localStorage.getItem("accessToken");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedService, setSelectedService] = useState("all");
   const [priceRange, setPriceRange] = useState("all");
   const [ratingFilter, setRatingFilter] = useState("all");
+  const [providers, setProviders] = useState<Provider[]>([]);
+
+  useEffect(() => {
+    let currentToken = token;
+    fetch(FIND_PROVIDERS_URL, {
+      method: "GET",
+      headers: {
+        "content-type": "application/json",
+        Authorization: `Bearer ${currentToken || accessToken}`,
+      },
+      credentials: "include",
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("All Providers", data.data);
+        if (data.data && Array.isArray(data.data)) {
+          setProviders(data.data);
+        } else {
+          setProviders([]);
+        }
+      })
+      .catch((err) => {
+        console.log("Error :", err.message);
+      });
+  }, [token]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -175,15 +168,15 @@ const FindProviders = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {providers.map((provider) => (
               <div
-                key={provider.id}
+                key={provider._id}
                 className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition duration-200"
               >
                 <div className="relative p-6 flex justify-center">
                   {/* Circular Image Container */}
                   <div className="relative w-32 h-32">
                     <img
-                      src={provider.image}
-                      alt={provider.name}
+                      src={provider.providerImageUrl}
+                      alt={provider.providerName}
                       className="w-full h-full object-cover rounded-full border-4 border-white shadow-md"
                     />
                     <div className="absolute -bottom-2 -right-2 bg-white rounded-full px-3 py-1 shadow flex items-center">
@@ -195,7 +188,9 @@ const FindProviders = () => {
                       >
                         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                       </svg>
-                      <span className="font-semibold">{provider.rating}</span>
+                      <span className="font-semibold">
+                        {provider.providerAvgRating}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -204,10 +199,10 @@ const FindProviders = () => {
                   <div className="flex justify-between items-start mb-2">
                     <div className="text-center w-full">
                       <h3 className="text-xl font-bold text-gray-800">
-                        {provider.name}
+                        {provider.providerName}
                       </h3>
                       <p className="text-blue-600 font-medium">
-                        {provider.service}
+                        {provider.providerServicesList.join(" , ")}
                       </p>
                     </div>
                   </div>
@@ -219,9 +214,9 @@ const FindProviders = () => {
                   </div>
 
                   <p className="text-gray-600 mb-4 line-clamp-2 text-center">
-                    {provider.bio}
+                    {provider.providerBio}
                   </p>
-
+                  {/* 
                   <div className="flex items-center text-sm text-gray-500 mb-6 justify-center">
                     <svg
                       className="w-4 h-4 mr-1"
@@ -235,8 +230,8 @@ const FindProviders = () => {
                         clipRule="evenodd"
                       />
                     </svg>
-                    <span>{provider.reviews} reviews</span>
-                  </div>
+                    <span>{provider} reviews</span>
+                  </div> */}
 
                   <div className="flex space-x-3">
                     <button className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-200 font-medium text-center">

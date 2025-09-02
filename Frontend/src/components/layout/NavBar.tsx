@@ -41,8 +41,7 @@ const NavBar = () => {
                   </Link>
                 )}
                 {accessToken && userType === "customer" && (
-                  <div>
-                    {" "}
+                  <>
                     <Link
                       to="/findProviders"
                       className="text-gray-600 px-3 py-2 rounded-md text-sm font-medium hover:text-gray-900 hover:bg-gray-100 transition-colors"
@@ -55,7 +54,7 @@ const NavBar = () => {
                     >
                       Post Requirement
                     </Link>
-                  </div>
+                  </>
                 )}
               </div>
             </div>
@@ -79,7 +78,7 @@ const NavBar = () => {
             </div>
           )}
 
-          {/* Mobile menu button - Only hamburger icon, no login/signup buttons */}
+          {/* Mobile menu button */}
           <div className="md:hidden flex items-center">
             <button
               onClick={toggleMenu}
@@ -149,7 +148,24 @@ const NavBar = () => {
                 Provider DashBoard
               </Link>
             )}
-
+            {accessToken && userType === "customer" && (
+              <>
+                <Link
+                  to="/findProviders"
+                  className="text-gray-600 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Find Providers
+                </Link>
+                <Link
+                  to="/postRequirement"
+                  className="text-gray-600 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Post Requirement
+                </Link>
+              </>
+            )}
             {/* Mobile Auth Buttons (visible only when logged out) */}
             {!accessToken && (
               <div className="pt-4 pb-3 border-t border-gray-200">

@@ -1,5 +1,6 @@
 const Users = require("../models/UserModel");
 const CustomerRequests = require("../models/CustomerModel");
+const Providers = require("../models/ProviderModel");
 
 async function createRequest(req, res) {
   try {
@@ -63,4 +64,30 @@ async function myRequest(req, res) {
     res.status(500).json({ success: false, message: "Server error" });
   }
 }
-module.exports = { createRequest, myRequest };
+
+async function findProviders(req, res) {
+  try {
+    if (req.user.type === "customer") {
+      const providers = await Providers.find({});
+
+      if (!providers || providers.length === 0) {
+        return res.status(404).json({ message: "providers not found" });
+      }
+
+      res.status(200).json({
+        message: "Providers fetched successfully",
+        data: providers,
+      });
+    } else {
+      return res.status(403).json({
+        success: false,
+        message: "Only customers can find providers",
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+}
+
+module.exports = { createRequest, myRequest, findProviders };
