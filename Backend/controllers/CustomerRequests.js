@@ -1,15 +1,16 @@
 const Users = require("../models/UserModel");
 const CustomerRequests = require("../models/CustomerModel");
+const Providers = require("../models/ProviderModel");
 
 async function createRequest(req, res) {
   try {
     if (req.user.type === "customer") {
-      const user = await Users.findById(req.body.id);
+      const user = await Users.findById(req.user.id);
       if (!user) return res.status(404).json({ error: "user not found" });
 
       const newRequest = {
         userID: user._id,
-        customerName: user.userName,
+        customerName: user.userName || req.body.name,
         customerPrice: req.body.price,
         customerMedia: req.body.media,
         customerServicesList: req.body.serviceType,
@@ -63,4 +64,48 @@ async function myRequest(req, res) {
     res.status(500).json({ success: false, message: "Server error" });
   }
 }
-module.exports = { createRequest, myRequest };
+
+async function findProviders(req, res) {
+  try {
+    if (req.user.type !== "customer") {
+      return res.status(403).json({
+        success: false,
+        message: "Only customers can find providers",
+      });
+    }
+
+    const { name, serviceType } = req.query;
+    let filter = { status: "approve" };
+
+    if (serviceType && serviceType !== "all") {
+      filter.providerServicesList = { $in: [serviceType.toLowerCase()] };
+    }
+
+    if (name && name.trim() !== "") {
+      filter.providerName = { $regex: name, $options: "i" };
+    }
+
+    const providers = await Providers.find(filter);
+
+    if (!providers || providers.length === 0) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Providers not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Providers fetched successfully",
+      data: providers,
+    });
+  } catch (error) {
+    console.error("Error fetching providers:", error.message);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+}
+
+module.exports = {
+  createRequest,
+  myRequest,
+  findProviders,
+};

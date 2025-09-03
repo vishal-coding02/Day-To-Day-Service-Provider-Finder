@@ -10,7 +10,9 @@ const AddressVerification = () => {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const userId = useSelector((state: any) => state.auth.userData.userId);
-  const userType = useSelector((state: any) => state.auth.userData.type);
+  const userType =
+    useSelector((state: any) => state.auth.userData.type) ||
+    localStorage.getItem("userType");
   const [addressData, setAddressData] = useState<AddressForm>({
     addressType: "current",
     street: "",
@@ -59,6 +61,8 @@ const AddressVerification = () => {
         console.log("Response from backend:", body);
         if (userType == "provider") {
           navitage("/providerProfileCreation");
+        } else {
+          navitage("/login");
         }
       })
       .catch((err) => {

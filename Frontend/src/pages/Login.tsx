@@ -80,7 +80,12 @@ const Login = () => {
 
         dispatch(loginAction(data));
 
-        if (data.providerStatus == "pending") {
+        if (data.userType === "customer") {
+          navitage("/postRequirement");
+        } else if (
+          data.providerStatus == "pending" &&
+          data.userType === "provider"
+        ) {
           navitage(`/providerReviews/${data.userID}`);
         } else {
           navitage("/providerDashBoard");

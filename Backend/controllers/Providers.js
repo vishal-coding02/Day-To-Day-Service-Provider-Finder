@@ -14,11 +14,12 @@ async function profiderProfileCreation(req, res) {
       userID: user._id,
       providerIdProf: idProf,
       providerName: name || user.userName,
-      providerServicesList: servicesList,
+      providerServicesList: servicesList.toLowerCase(),
       providerImageUrl: image,
       providerBio: bio,
       providerTotalJobs: totalJobs,
       providerAvgRating: avgRating,
+      status: "pending",
       createdAt: new Date(),
     };
     await Providers.create(newProfile);
