@@ -9,6 +9,6 @@ const {
 
 customerRouter.post("/customers/request", verifyToken, createRequest);
 customerRouter.get("/customers/myRequest", verifyToken, myRequest);
-customerRouter.get("/customers/findProviders", verifyToken, findProviders);
+customerRouter.get("/customers/providers", verifyToken, findProviders);
 
 module.exports = customerRouter;

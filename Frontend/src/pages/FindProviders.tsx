@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router";
 import NavBar from "../components/layout/NavBar";
 import Footer from "../components/layout/Footer";
 const FIND_PROVIDERS_URL = import.meta.env.VITE_FIND_PROVIDERS_URL;
 import type { Provider } from "../interfaces/CustomerRequestInterface";
 
 const FindProviders = () => {
+  const navigate = useNavigate();
   // State for search and filters
   const token = useSelector((state: any) => state.auth.jwtToken);
   const accessToken = localStorage.getItem("accessToken");
@@ -15,29 +17,41 @@ const FindProviders = () => {
   const [ratingFilter, setRatingFilter] = useState("all");
   const [providers, setProviders] = useState<Provider[]>([]);
 
+  function handleSearchFilter(e: React.ChangeEvent<HTMLInputElement>) {
+    setSearchTerm(e.target.value);
+  }
+
   useEffect(() => {
-    let currentToken = token;
-    fetch(FIND_PROVIDERS_URL, {
+    let queryParams = new URLSearchParams();
+
+    if (searchTerm.trim() !== "") {
+      queryParams.append("name", searchTerm);
+    }
+    if (selectedService !== "all") {
+      queryParams.append("serviceType", selectedService);
+    }
+
+    navigate(`?${queryParams.toString()}`, { replace: true });
+
+    let url = `${FIND_PROVIDERS_URL}?${queryParams.toString()}`;
+    fetch(url, {
       method: "GET",
       headers: {
         "content-type": "application/json",
-        Authorization: `Bearer ${currentToken || accessToken}`,
+        Authorization: `Bearer ${token || accessToken}`,
       },
       credentials: "include",
     })
       .then((res) => res.json())
       .then((data) => {
-        console.log("All Providers", data.data);
         if (data.data && Array.isArray(data.data)) {
           setProviders(data.data);
         } else {
           setProviders([]);
         }
       })
-      .catch((err) => {
-        console.log("Error :", err.message);
-      });
-  }, [token]);
+      .catch((err) => console.log("Error :", err.message));
+  }, [searchTerm, selectedService, token]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -85,10 +99,10 @@ const FindProviders = () => {
                 <input
                   type="text"
                   id="search"
-                  placeholder="Search by name, service, or keyword"
+                  placeholder="Search by name, or keyword"
                   className="pl-10 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition duration-200"
                   value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onChange={handleSearchFilter}
                 />
               </div>
             </div>
@@ -113,6 +127,7 @@ const FindProviders = () => {
                 <option value="tutoring">Tutoring</option>
                 <option value="repair">Repair</option>
                 <option value="beauty">Beauty</option>
+                <option value="gardening">Gardening</option>
               </select>
             </div>
 
