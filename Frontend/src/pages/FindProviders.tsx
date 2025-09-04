@@ -27,6 +27,9 @@ const FindProviders = () => {
     if (searchTerm.trim() !== "") {
       queryParams.append("name", searchTerm);
     }
+    if (priceRange.trim() !== "all") {
+      queryParams.append("priceRange", priceRange);
+    }
     if (selectedService !== "all") {
       queryParams.append("serviceType", selectedService);
     }
@@ -51,7 +54,7 @@ const FindProviders = () => {
         }
       })
       .catch((err) => console.log("Error :", err.message));
-  }, [searchTerm, selectedService, token]);
+  }, [searchTerm, priceRange, selectedService, token]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -146,9 +149,11 @@ const FindProviders = () => {
                 onChange={(e) => setPriceRange(e.target.value)}
               >
                 <option value="all">Any Price</option>
-                <option value="low">$0 - $30/hour</option>
-                <option value="medium">$30 - $60/hour</option>
-                <option value="high">$60+/hour</option>
+                <option value="inr_low">₹100 - ₹200/hour</option>
+                <option value="inr_mid">₹200 - ₹500/hour</option>
+                <option value="inr_high">₹500 - ₹1000/hour</option>
+                <option value="inr_premium">₹1000 - ₹2000/hour</option>
+                <option value="inr_vip">₹2000+/hour</option>
               </select>
             </div>
           </div>
@@ -224,7 +229,8 @@ const FindProviders = () => {
 
                   <div className="flex justify-center my-3">
                     <span className="bg-green-100 text-green-800 text-sm font-semibold px-2.5 py-0.5 rounded">
-                      {provider.price}
+                      {provider.providerPricing?.pricePerHour ?? "N/A"} -
+                      {provider.providerPricing?.workTime ?? "N/A"}
                     </span>
                   </div>
 

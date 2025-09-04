@@ -26,7 +26,10 @@ async function profiderProfileCreation(req, res) {
       providerServicesList: servicesList.map((s) => s.toLowerCase()),
       providerImageUrl: image,
       providerBio: bio,
-      providerPricing: price,
+      providerPricing: {
+        pricePerHour: price?.pricePerHour || 0,
+        workTime: price?.workTime || "N/A",
+      },
       providerTotalJobs: totalJobs,
       providerAvgRating: avgRating,
       status: "pending",

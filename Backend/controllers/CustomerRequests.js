@@ -74,8 +74,22 @@ async function findProviders(req, res) {
       });
     }
 
-    const { name, serviceType } = req.query;
+    const { name, serviceType, priceRange } = req.query;
     let filter = { status: "approve" };
+
+    if (priceRange && priceRange !== "all") {
+      if (priceRange === "inr_low") {
+        filter["providerPricing.pricePerHour"] = { $gte: 100, $lte: 200 };
+      } else if (priceRange === "inr_mid") {
+        filter["providerPricing.pricePerHour"] = { $gte: 200, $lte: 500 };
+      } else if (priceRange === "inr_high") {
+        filter["providerPricing.pricePerHour"] = { $gte: 500, $lte: 1000 };
+      } else if (priceRange === "inr_premium") {
+        filter["providerPricing.pricePerHour"] = { $gte: 1000, $lte: 2000 };
+      } else if (priceRange === "inr_vip") {
+        filter["providerPricing.pricePerHour"] = { $gt: 2000 };
+      }
+    }
 
     if (serviceType && serviceType !== "all") {
       filter.providerServicesList = { $in: [serviceType.toLowerCase()] };
