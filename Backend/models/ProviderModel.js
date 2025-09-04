@@ -34,6 +34,12 @@ const providerSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  providerPricing: {
+    type: {
+      pricePerHour: { type: Number, required: true },
+      workTime: { type: String, required: true },
+    },
+  },
   createdAt: {
     type: Date,
     default: Date.now,

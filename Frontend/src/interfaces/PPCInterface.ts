@@ -5,4 +5,8 @@ export default interface ProviderProfileCreation {
   servicesList: string[];
   image: string;
   bio: string;
+  price: {
+    pricePerHour: number;
+    workTime: string;
+  };
 }
