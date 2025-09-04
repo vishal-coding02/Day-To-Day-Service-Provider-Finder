@@ -12,7 +12,10 @@ export interface Provider {
   providerName: string;
   providerBio: string;
   providerImageUrl: string;
-  providerServicesList: string[]; 
+  providerServicesList: string[];
   providerAvgRating: number;
-  price?: string | number;
+  providerPricing: {
+    pricePerHour: number;
+    workTime: string;
+  };
 }
