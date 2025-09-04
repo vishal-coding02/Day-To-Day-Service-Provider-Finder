@@ -4,8 +4,17 @@ const CustomerRequest = require("../models/CustomerModel");
 
 async function profiderProfileCreation(req, res) {
   try {
-    const { id, name, idProf, servicesList, image, bio, totalJobs, avgRating } =
-      req.body;
+    const {
+      id,
+      name,
+      idProf,
+      price,
+      servicesList,
+      image,
+      bio,
+      totalJobs,
+      avgRating,
+    } = req.body;
     const user = await Users.findById(id);
 
     if (!user) return res.status(400).json({ error: "user not found" });
@@ -14,9 +23,10 @@ async function profiderProfileCreation(req, res) {
       userID: user._id,
       providerIdProf: idProf,
       providerName: name || user.userName,
-      providerServicesList: servicesList.toLowerCase(),
+      providerServicesList: servicesList.map((s) => s.toLowerCase()),
       providerImageUrl: image,
       providerBio: bio,
+      providerPricing: price,
       providerTotalJobs: totalJobs,
       providerAvgRating: avgRating,
       status: "pending",

@@ -18,6 +18,10 @@ const PPC = () => {
     servicesList: [],
     image: "",
     bio: "",
+    price: {
+      pricePerHour: 0,
+      workTime: "",
+    },
   });
 
   const [searchTerm, setSearchTerm] = useState<string>("");
@@ -27,15 +31,27 @@ const PPC = () => {
   const [imagePreview, setImagePreview] = useState<string>("");
 
   const handleInputChange = (
-    e:
-      | React.ChangeEvent<HTMLInputElement>
-      | React.ChangeEvent<HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+
+    if (name.startsWith("providerPricing.")) {
+      const field = name.split(".")[1];
+      setFormData({
+        ...formData,
+        price: {
+          ...formData.price,
+          [field]: field === "pricePerHour" ? parseInt(value) || 0 : value,
+        },
+      });
+    } else {
+      setFormData({
+        ...formData,
+        [name]: value,
+      });
+    }
   };
 
   const handleServiceSelect = (service: string) => {
@@ -462,59 +478,121 @@ const PPC = () => {
                   </h3>
 
                   <div className="grid md:grid-cols-2 gap-8">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-4">
-                        Profile Photo
-                      </label>
-                      <div className="flex flex-col items-center justify-center w-full border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
-                        <input
-                          type="file"
-                          ref={fileInputRef}
-                          onChange={handleImageUpload}
-                          accept="image/*"
-                          className="hidden"
-                        />
+                    <div className="space-y-6">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-4">
+                          Profile Photo
+                        </label>
+                        <div className="flex flex-col items-center justify-center w-full border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
+                          <input
+                            type="file"
+                            ref={fileInputRef}
+                            onChange={handleImageUpload}
+                            accept="image/*"
+                            className="hidden"
+                          />
 
-                        {imagePreview ? (
-                          <div className="flex flex-col items-center">
-                            <img
-                              src={imagePreview}
-                              alt="Profile preview"
-                              className="h-32 w-32 rounded-full object-cover mb-3 border-4 border-white shadow-md"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => fileInputRef.current?.click()}
-                              className="text-blue-600 text-sm hover:text-blue-800"
-                            >
-                              Change Photo
-                            </button>
-                          </div>
-                        ) : (
-                          <div
-                            className="cursor-pointer py-8"
-                            onClick={() => fileInputRef.current?.click()}
-                          >
-                            <svg
-                              className="w-12 h-12 mx-auto mb-3 text-gray-400"
-                              xmlns="http://www.w3.org/2000/svg"
-                              viewBox="0 0 20 20"
-                              fill="currentColor"
-                            >
-                              <path
-                                fillRule="evenodd"
-                                d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.121-1.121A2 2 0 0011.172 3H8.828a2 2 0 00-1.414.586L6.293 4.707A1 1 0 015.586 5H4zm6 9a3 3 0 100-6 3 3 0 000 6z"
-                                clipRule="evenodd"
+                          {imagePreview ? (
+                            <div className="flex flex-col items-center">
+                              <img
+                                src={imagePreview}
+                                alt="Profile preview"
+                                className="h-32 w-32 rounded-full object-cover mb-3 border-4 border-white shadow-md"
                               />
-                            </svg>
-                            <p className="text-sm text-gray-600">
-                              Click to upload profile photo
-                            </p>
-                            <p className="text-xs text-gray-500 mt-1">
-                              PNG, JPG up to 5MB
-                            </p>
+                              <button
+                                type="button"
+                                onClick={() => fileInputRef.current?.click()}
+                                className="text-blue-600 text-sm hover:text-blue-800"
+                              >
+                                Change Photo
+                              </button>
+                            </div>
+                          ) : (
+                            <div
+                              className="cursor-pointer py-8"
+                              onClick={() => fileInputRef.current?.click()}
+                            >
+                              <svg
+                                className="w-12 h-12 mx-auto mb-3 text-gray-400"
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 20 20"
+                                fill="currentColor"
+                              >
+                                <path
+                                  fillRule="evenodd"
+                                  d="M4 5a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V7a2 2 0 00-2-2h-1.586a1 1 0 01-.707-.293l-1.121-1.121A2 2 0 0011.172 3H8.828a2 2 0 00-1.414.586L6.293 4.707A1 1 0 015.586 5H4zm6 9a3 3 0 100-6 3 3 0 000 6z"
+                                  clipRule="evenodd"
+                                />
+                              </svg>
+                              <p className="text-sm text-gray-600">
+                                Click to upload profile photo
+                              </p>
+                              <p className="text-xs text-gray-500 mt-1">
+                                PNG, JPG up to 5MB
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Pricing Information */}
+                      <div className="space-y-4">
+                        <h4 className="text-lg font-medium text-gray-800">
+                          Pricing Information
+                        </h4>
+
+                        <div>
+                          <label
+                            htmlFor="pricePerHour"
+                            className="block text-sm font-medium text-gray-700 mb-2"
+                          >
+                            Price Per Hour (₹) *
+                          </label>
+                          <div className="relative">
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                              <span className="text-gray-500">₹</span>
+                            </div>
+                            <input
+                              id="pricePerHour"
+                              name="providerPricing.pricePerHour"
+                              type="number"
+                              value={formData.price.pricePerHour}
+                              onChange={handleInputChange}
+                              placeholder="e.g., 500"
+                              className="pl-10 w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition duration-200"
+                              required
+                              min="0"
+                            />
                           </div>
-                        )}
+                        </div>
+
+                        <div>
+                          <label
+                            htmlFor="workTime"
+                            className="block text-sm font-medium text-gray-700 mb-2"
+                          >
+                            Standard Work Time *
+                          </label>
+                          <select
+                            id="workTime"
+                            name="providerPricing.workTime"
+                            value={formData.price.workTime}
+                            onChange={handleInputChange}
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition duration-200"
+                            required
+                          >
+                            <option value="">Select work time</option>
+                            <option value="30min">30 minutes</option>
+                            <option value="1hr">1 hour</option>
+                            <option value="1.5hr">1.5 hours</option>
+                            <option value="2hr">2 hours</option>
+                            <option value="2.5hr">2.5 hours</option>
+                            <option value="3hr">3 hours</option>
+                            <option value="3.5hr">3.5 hours</option>
+                            <option value="4hr">4 hours</option>
+                            <option value="4+hr">4+ hours</option>
+                          </select>
+                        </div>
                       </div>
                     </div>
 
@@ -581,6 +659,22 @@ const PPC = () => {
                         </span>
                         <span className="font-semibold">
                           {aadhaarPreview ? "✓ Uploaded" : "Not provided"}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600 font-medium">
+                          Price Per Hour:
+                        </span>
+                        <span className="font-semibold">
+                          ₹{formData.price.pricePerHour || "Not set"}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600 font-medium">
+                          Work Time:
+                        </span>
+                        <span className="font-semibold">
+                          {formData.price.workTime || "Not set"}
                         </span>
                       </div>
                       <div className="flex justify-between">
