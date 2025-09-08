@@ -9,7 +9,7 @@ const {
 const { verifyToken } = require("../services/Auth");
 
 providersRouter.post("/profileCreation", profiderProfileCreation);
-providersRouter.get("/providerProfile/:id", verifyToken, providerProfile);
+providersRouter.get("/profile/:id", verifyToken, providerProfile);
 providersRouter.get("/providerDashBoard", verifyToken, providerDashBoard);
 providersRouter.get("/providerUnderReview/:id", verifyToken, providerUnderReview);
 

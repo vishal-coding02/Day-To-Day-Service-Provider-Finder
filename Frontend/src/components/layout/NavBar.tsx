@@ -5,6 +5,7 @@ const NavBar = () => {
   const userType = localStorage.getItem("userType");
   const accessToken = localStorage.getItem("accessToken");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const userID = localStorage.getItem("userID");
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
@@ -33,12 +34,20 @@ const NavBar = () => {
                   About
                 </Link>
                 {accessToken && userType === "provider" && (
-                  <Link
-                    to="/providerDashBoard"
-                    className="text-gray-600 px-3 py-2 rounded-md text-sm font-medium hover:text-gray-900 hover:bg-gray-100 transition-colors"
-                  >
-                    Provider DashBoard
-                  </Link>
+                  <>
+                    <Link
+                      to="/providerDashBoard"
+                      className="text-gray-600 px-3 py-2 rounded-md text-sm font-medium hover:text-gray-900 hover:bg-gray-100 transition-colors"
+                    >
+                      Provider DashBoard
+                    </Link>
+                    <Link
+                      to={`/providerProfile/${userID}`}
+                      className="text-gray-600 px-3 py-2 rounded-md text-sm font-medium hover:text-gray-900 hover:bg-gray-100 transition-colors"
+                    >
+                      View Profile
+                    </Link>
+                  </>
                 )}
                 {accessToken && userType === "customer" && (
                   <>
