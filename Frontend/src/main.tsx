@@ -17,6 +17,7 @@ import ProviderReviewPending from "./components/ProviderReviewPending.tsx";
 import HomePage from "./pages/HomePage.tsx";
 import FindProviders from "./pages/FindProviders.tsx";
 import CreateCustomerRequest from "./pages/CreateCustomerRequest.tsx";
+import ProviderProfile from "./pages/ProviderProfile.tsx";
 
 const router = createBrowserRouter([
   {
@@ -70,6 +71,10 @@ const router = createBrowserRouter([
   {
     path: "/postRequirement",
     element: <CreateCustomerRequest />,
+  },
+  {
+    path: "/providerProfile/:id",
+    element: <ProviderProfile />,
   },
 ]);
 
