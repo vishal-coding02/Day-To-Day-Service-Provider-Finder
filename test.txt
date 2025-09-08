@@ -1,3 +1,15 @@
 routing 
 
 login pe status send karna hai.. 
+
+{
+    title: String,             // e.g. "Basic Cleaning", "Standard Cleaning"
+    description: String,       // short detail of what is included
+    price: Number,             // package price
+    duration: String,          // e.g. "2 hours", "5 days project", "per month"
+    servicesIncluded: [String],// list of included services/features
+    deliveryTime: String,      // e.g. "Within 3 days"
+    isActive: Boolean,         // package active or not
+    createdAt: Date,
+    updatedAt: Date
+  }

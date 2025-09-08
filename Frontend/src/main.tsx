@@ -18,6 +18,7 @@ import HomePage from "./pages/HomePage.tsx";
 import FindProviders from "./pages/FindProviders.tsx";
 import CreateCustomerRequest from "./pages/CreateCustomerRequest.tsx";
 import ProviderProfile from "./pages/ProviderProfile.tsx";
+import ServicePackage from "./pages/ProviderPackages.tsx";
 
 const router = createBrowserRouter([
   {
@@ -75,6 +76,10 @@ const router = createBrowserRouter([
   {
     path: "/providerProfile/:id",
     element: <ProviderProfile />,
+  },
+  {
+    path: "/packages",
+    element: <ServicePackage />,
   },
 ]);
 
