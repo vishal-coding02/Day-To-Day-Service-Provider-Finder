@@ -46,4 +46,26 @@ async function createPackages(req, res) {
   }
 }
 
-module.exports = { createPackages };
+async function myPackages(req, res) {
+  try {
+    if (req.user.type !== "provider") {
+      return res.status(403).json({
+        success: false,
+        message: "Only provider can featch packages",
+      });
+    }
+    const packages = await Package.find({ userID: req.params.id });
+
+    if (!packages) {
+      res.status(404).json({ error: "packages not found" });
+    } else {
+      res.status(200).json({ myPackages: packages });
+      console.log(packages)
+    }
+  } catch (err) {
+    console.log("Provider Packages Error :", err.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
+
+module.exports = { createPackages, myPackages };

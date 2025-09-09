@@ -10,3 +10,16 @@ export default interface Package {
   createdAt?: Date;
   updatedAt?: Date;
 }
+
+export default interface ServicePackage {
+  _id: string;
+  packageTitle: string;
+  packageDescription: string;
+  packagePrice: number;
+  packageTime: string;
+  packagesDeliveryTime: string;
+  packageServicesList: string[];
+  packageStatus: boolean;
+  providerName: string;
+  userID: string;
+}
