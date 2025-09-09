@@ -2,25 +2,30 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { useSelector } from "react-redux";
 import type ProviderProfileData from "../interfaces/ProviderProfileInterface";
+import type ServicePackage from "../interfaces/ServicePackageInterface";
 import NavBar from "../components/layout/NavBar";
 import Footer from "../components/layout/Footer";
 
 const PROVIDERS_PROFILE_URL = import.meta.env.VITE_PROVIDERS_PROFILE_URL;
+const MYPACKAGES_URL = import.meta.env.VITE_PROVIDERS_MYPACKAGES_URL;
 
 const ProviderProfile = () => {
   const navigate = useNavigate();
+  const userType = localStorage.getItem("userType");
   const { id } = useParams();
   const [providerData, setProviderData] = useState<ProviderProfileData | null>(
     null
   );
-  const [activeTab, setActiveTab] = useState<"profile" | "settings">("profile");
+  const [packages, setPackages] = useState<ServicePackage[]>([]);
+  const [activeTab, setActiveTab] = useState<
+    "profile" | "packages" | "settings"
+  >("profile");
   const accessToken = localStorage.getItem("accessToken");
   const token = useSelector((state: any) => state.auth.jwtToken);
 
   useEffect(() => {
     const fetchData = async () => {
       let currentToken = token;
-      console.log("Initial token:", currentToken);
       try {
         const res = await fetch(`${PROVIDERS_PROFILE_URL}/${id}`, {
           method: "GET",
@@ -39,6 +44,29 @@ const ProviderProfile = () => {
     };
 
     fetchData();
+  }, [token]);
+
+  useEffect(() => {
+    const fetchPackages = async () => {
+      let currentToken = token;
+      try {
+        const res = await fetch(`${MYPACKAGES_URL}/${id}`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${currentToken || accessToken}`,
+          },
+          credentials: "include",
+        });
+        const data = await res.json();
+        console.log("Provider Packages:", data);
+        setPackages(data.myPackages || []);
+      } catch (err: any) {
+        console.log("Packages fetch error:", err.message);
+      }
+    };
+
+    fetchPackages();
   }, [token]);
 
   // Function to render star ratings
@@ -73,7 +101,7 @@ const ProviderProfile = () => {
     <div className="min-h-screen flex flex-col">
       <NavBar />
       <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           {/* Header */}
           <div className="mb-8 text-center">
             <h1 className="text-3xl font-bold text-gray-900">
@@ -98,14 +126,26 @@ const ProviderProfile = () => {
             </button>
             <button
               className={`py-3 px-6 font-medium text-sm ${
-                activeTab === "settings"
+                activeTab === "packages"
                   ? "text-blue-600 border-b-2 border-blue-600"
                   : "text-gray-500 hover:text-gray-700"
               }`}
-              onClick={() => setActiveTab("settings")}
+              onClick={() => setActiveTab("packages")}
             >
-              Settings
+              Service Packages ({packages.length})
             </button>
+            {userType === "provider" && (
+              <button
+                className={`py-3 px-6 font-medium text-sm ${
+                  activeTab === "settings"
+                    ? "text-blue-600 border-b-2 border-blue-600"
+                    : "text-gray-500 hover:text-gray-700"
+                }`}
+                onClick={() => setActiveTab("settings")}
+              >
+                Settings
+              </button>
+            )}
           </div>
 
           {/* Profile Tab Content */}
@@ -158,6 +198,14 @@ const ProviderProfile = () => {
                         ).toLocaleDateString()}
                       </span>
                     </div>
+                    {userType === "customer" && (
+                      <div className="mt-6">
+                        <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium flex items-center">
+                          <i className="fas fa-phone-alt mr-2"></i> Contact
+                          Provider
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -178,12 +226,14 @@ const ProviderProfile = () => {
                       </span>
                     </div>
 
-                    <div className="flex items-center">
-                      <i className="fas fa-phone text-gray-500 w-6"></i>
-                      <span className="text-gray-700">
-                        {providerData?.userID?.userPhone}
-                      </span>
-                    </div>
+                    {userType === "provider" && (
+                      <div className="flex items-center">
+                        <i className="fas fa-phone text-gray-500 w-6"></i>
+                        <span className="text-gray-700">
+                          {providerData?.userID?.userPhone}
+                        </span>
+                      </div>
+                    )}
 
                     <div className="flex items-start">
                       <i className="fas fa-map-marker-alt text-gray-500 w-6 mt-1"></i>
@@ -229,26 +279,31 @@ const ProviderProfile = () => {
 
                   {/* ID Verification */}
                   <div className="bg-gray-50 rounded-lg p-5">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                      <i className="fas fa-id-card mr-2 text-blue-600"></i>
-                      ID Verification
-                    </h3>
+                    {userType === "provider" && (
+                      <>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                          <i className="fas fa-id-card mr-2 text-blue-600"></i>
+                          ID Verification
+                        </h3>
 
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-700">Identity Document</span>
-                      {providerData?.providerIdProf ? (
-                        <a
-                          href={providerData?.providerIdProf}
-                          // target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600 hover:text-blue-800 flex items-center"
-                        >
-                          <i className="fas fa-eye mr-1"></i> View ID
-                        </a>
-                      ) : (
-                        <span className="text-red-500">Not provided</span>
-                      )}
-                    </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-gray-700">
+                            Identity Document
+                          </span>
+                          {providerData?.providerIdProf ? (
+                            <a
+                              href={providerData?.providerIdProf}
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:text-blue-800 flex items-center"
+                            >
+                              <i className="fas fa-eye mr-1"></i> View ID
+                            </a>
+                          ) : (
+                            <span className="text-red-500">Not provided</span>
+                          )}
+                        </div>
+                      </>
+                    )}
 
                     <div className="mt-3 flex items-center">
                       <span className="text-gray-700 mr-2">Status:</span>
@@ -265,6 +320,119 @@ const ProviderProfile = () => {
                   </div>
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* Packages Tab Content */}
+          {activeTab === "packages" && (
+            <div>
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-gray-900">
+                  Service Packages
+                </h2>
+                {userType === "provider" && (
+                  <button
+                    onClick={() => navigate("/packages")}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md flex items-center"
+                  >
+                    <i className="fas fa-plus mr-2"></i> Create New Package
+                  </button>
+                )}
+              </div>
+
+              {packages.length === 0 ? (
+                <div className="bg-white rounded-lg shadow-md p-8 text-center">
+                  <i className="fas fa-box-open text-4xl text-gray-300 mb-4"></i>
+                  <h3 className="text-xl font-medium text-gray-700 mb-2">
+                    No packages yet
+                  </h3>
+                  <p className="text-gray-500 mb-4">
+                    Create your first service package to get started
+                  </p>
+                  <button
+                    onClick={() => navigate("/packages")}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
+                  >
+                    Create Your First Package
+                  </button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {packages.map((pkg) => (
+                    <div
+                      key={pkg._id}
+                      className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 hover:shadow-lg transition-shadow"
+                    >
+                      <div className="p-6">
+                        <div className="flex justify-between items-start mb-4">
+                          <h3 className="text-xl font-bold text-gray-900">
+                            {pkg.packageTitle}
+                          </h3>
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs font-medium ${
+                              pkg.packageStatus
+                                ? "bg-green-100 text-green-800"
+                                : "bg-gray-100 text-gray-800"
+                            }`}
+                          >
+                            {pkg.packageStatus ? "Active" : "Inactive"}
+                          </span>
+                        </div>
+
+                        <p className="text-gray-600 mb-4">
+                          {pkg.packageDescription}
+                        </p>
+
+                        <div className="flex items-baseline mb-4">
+                          <span className="text-3xl font-bold text-gray-900">
+                            ₹{pkg.packagePrice}
+                          </span>
+                        </div>
+
+                        <div className="mb-4">
+                          <div className="flex items-center text-gray-600 mb-1">
+                            <i className="fas fa-clock mr-2 text-blue-600"></i>
+                            <span>{pkg.packageTime}</span>
+                          </div>
+                          <div className="flex items-center text-gray-600">
+                            <i className="fas fa-truck mr-2 text-blue-600"></i>
+                            <span>{pkg.packagesDeliveryTime}</span>
+                          </div>
+                        </div>
+
+                        <div className="mb-4">
+                          <h4 className="font-medium text-gray-900 mb-2">
+                            Services Included:
+                          </h4>
+                          <ul className="space-y-1">
+                            {pkg.packageServicesList.map((service, index) => (
+                              <li
+                                key={index}
+                                className="flex items-center text-gray-600"
+                              >
+                                <i className="fas fa-check-circle text-green-500 mr-2"></i>
+                                <span>{service}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+
+                        {userType === "provider" && (
+                          <div className="flex justify-between mt-6">
+                            <button className="text-blue-600 hover:text-blue-800 flex items-center">
+                              <i className="fas fa-edit mr-1"></i> Edit
+                            </button>
+                            <button className="text-gray-500 hover:text-gray-700 flex items-center">
+                              <i className="fas fa-toggle-on mr-1"></i>{" "}
+                              {pkg.packageStatus ? "Deactivate" : "Activate"}
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
