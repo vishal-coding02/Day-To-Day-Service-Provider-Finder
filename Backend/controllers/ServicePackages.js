@@ -48,7 +48,8 @@ async function createPackages(req, res) {
 
 async function myPackages(req, res) {
   try {
-    if (req.user.type !== "provider") {
+    if (!req.user.type === "provider" || !req.user.type === "customer") {
+      console.log(req.user.type);
       return res.status(403).json({
         success: false,
         message: "Only provider can featch packages",
@@ -60,7 +61,7 @@ async function myPackages(req, res) {
       res.status(404).json({ error: "packages not found" });
     } else {
       res.status(200).json({ myPackages: packages });
-      console.log(packages)
+      console.log(packages);
     }
   } catch (err) {
     console.log("Provider Packages Error :", err.message);
