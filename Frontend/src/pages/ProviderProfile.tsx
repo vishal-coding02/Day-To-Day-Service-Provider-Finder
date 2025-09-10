@@ -67,7 +67,7 @@ const ProviderProfile = () => {
     };
 
     fetchPackages();
-  }, [token]);
+  }, [token, id]);
 
   // Function to render star ratings
   const renderRatingStars = (rating: number = 0) => {
@@ -107,9 +107,11 @@ const ProviderProfile = () => {
             <h1 className="text-3xl font-bold text-gray-900">
               Service Provider Profile
             </h1>
-            <p className="text-gray-600 mt-2">
-              Manage your professional information and account settings
-            </p>
+            {userType === "provider" && (
+              <p className="text-gray-600 mt-2">
+                Manage your professional information and account settings
+              </p>
+            )}
           </div>
 
           {/* Tabs */}
@@ -346,15 +348,19 @@ const ProviderProfile = () => {
                   <h3 className="text-xl font-medium text-gray-700 mb-2">
                     No packages yet
                   </h3>
-                  <p className="text-gray-500 mb-4">
-                    Create your first service package to get started
-                  </p>
-                  <button
-                    onClick={() => navigate("/packages")}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
-                  >
-                    Create Your First Package
-                  </button>
+                  {userType === "provider" && (
+                    <>
+                      <p className="text-gray-500 mb-4">
+                        Create your first service package to get started
+                      </p>
+                      <button
+                        onClick={() => navigate("/packages")}
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
+                      >
+                        Create Your First Package
+                      </button>
+                    </>
+                  )}
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

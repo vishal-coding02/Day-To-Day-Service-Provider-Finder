@@ -45,7 +45,7 @@ async function profiderProfileCreation(req, res) {
 }
 
 async function providerProfile(req, res) {
-  if (req.user.type === "provider") {
+  if (req.user.type === "provider" || req.user.type === "customer") {
     try {
       const provider = await Providers.findOne({
         userID: req.params.id,

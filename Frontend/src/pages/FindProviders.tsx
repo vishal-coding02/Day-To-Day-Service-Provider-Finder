@@ -4,7 +4,7 @@ import { useNavigate } from "react-router";
 import NavBar from "../components/layout/NavBar";
 import Footer from "../components/layout/Footer";
 const FIND_PROVIDERS_URL = import.meta.env.VITE_FIND_PROVIDERS_URL;
-import type { Provider } from "../interfaces/CustomerRequestInterface";
+import type ProviderProfileData from "../interfaces/ProviderProfileInterface";
 
 const FindProviders = () => {
   const navigate = useNavigate();
@@ -15,7 +15,7 @@ const FindProviders = () => {
   const [selectedService, setSelectedService] = useState("all");
   const [priceRange, setPriceRange] = useState("all");
   const [ratingFilter, setRatingFilter] = useState("all");
-  const [providers, setProviders] = useState<Provider[]>([]);
+  const [providers, setProviders] = useState<ProviderProfileData[]>([]);
 
   function handleSearchFilter(e: React.ChangeEvent<HTMLInputElement>) {
     setSearchTerm(e.target.value);
@@ -49,6 +49,7 @@ const FindProviders = () => {
       .then((data) => {
         if (data.data && Array.isArray(data.data)) {
           setProviders(data.data);
+          console.log(data.data);
         } else {
           setProviders([]);
         }
@@ -258,7 +259,12 @@ const FindProviders = () => {
                     <button className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-200 font-medium text-center">
                       Book Now
                     </button>
-                    <button className="flex-1 border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-50 transition duration-200 font-medium text-center">
+                    <button
+                      onClick={() =>
+                        navigate(`/providerProfile/${provider.userID}`)
+                      }
+                      className="flex-1 border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-50 transition duration-200 font-medium text-center"
+                    >
                       View Profile
                     </button>
                   </div>
