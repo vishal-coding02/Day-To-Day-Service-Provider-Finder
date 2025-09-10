@@ -13,6 +13,7 @@ const compalintsRouter = require("./routes/ComplaintsRoutes");
 const otpRouter = require("./routes/OtpRoute");
 const adminRouter = require("./routes/AdminRoutes");
 const packageRouter = require("./routes/ServicesPackageRoutes");
+const coinsRouter = require("./routes/CoinsRoutes")
 
 app.use(cookieParser());
 app.use(
@@ -43,6 +44,7 @@ app.use(compalintsRouter);
 app.use(otpRouter);
 app.use("/admin", adminRouter);
 app.use("/packages", packageRouter);
+app.use(coinsRouter)
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
