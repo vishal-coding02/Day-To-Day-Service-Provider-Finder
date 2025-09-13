@@ -40,9 +40,10 @@ const ProviderReviewPending = () => {
   }, [token, id]);
 
   const handleLogout = () => {
-    // Clear tokens from storage
     localStorage.removeItem("accessToken");
-    // Redirect to login page
+    localStorage.removeItem("userID");
+    localStorage.removeItem("userType");
+    localStorage.removeItem("providerStatus");
     navigate("/login");
   };
 
