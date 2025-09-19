@@ -80,4 +80,57 @@ const fetchCoins = async (req, res) => {
   }
 };
 
-module.exports = { purchaseCoin, fetchCoins };
+const deductCoins = async (req, res) => {
+  try {
+    if (!(req.user.type === "customer" || req.user.type === "provider")) {
+      return res.status(403).json({
+        success: false,
+        message: "Only customers and providers can deduct coins",
+      });
+    }
+
+    const { deduct, id } = req.body;
+    const user = await Users.findByIdAndUpdate(
+      req.user.id,
+      { $push: { providerContactList: id } },
+      { new: true, runValidators: false }
+    );
+
+    const userCoins = await Coins.findOne({ userID: req.user.id });
+    if (!userCoins || userCoins.addCoins < deduct) {
+      return res.status(400).json({
+        success: false,
+        message: "Not enough coins",
+      });
+    }
+
+    userCoins.addCoins -= deduct;
+    await userCoins.save();
+
+    res.status(200).json({
+      success: true,
+      message: `${deduct} coins deducted successfully`,
+      updatedCoins: userCoins.addCoins,
+      updatedUser: user,
+    });
+  } catch (err) {
+    console.error("Deduct Coin Error:", err.message);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+// Check if customer has unlocked provider contact
+async function unlockedContact(req, res) {
+  try {
+    const customer = await Users.findById(req.user.id);
+    const { id } = req.params;
+
+    const alreadyUnlocked = customer.providerContactList.includes(id);
+
+    res.json({ unlocked: alreadyUnlocked });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+}
+
+module.exports = { purchaseCoin, fetchCoins, deductCoins, unlockedContact };

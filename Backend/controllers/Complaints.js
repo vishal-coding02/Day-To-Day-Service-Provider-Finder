@@ -26,5 +26,5 @@ async function usersComplaints(req, res) {
     res.status(500).json({ error: "Internal server error" });
   }
 }
-// 68a345b05fe1cbd75c9a682c
+
 module.exports = { usersComplaints };

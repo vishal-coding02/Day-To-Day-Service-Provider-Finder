@@ -17,6 +17,7 @@ const usersSchema = new mongoose.Schema({
     // maxlength: [16, "Password cannot exceed 16 characters"],
     required: [true, "Password is required"],
   },
+  providerContactList: [{ type: mongoose.Schema.Types.ObjectId, ref: "users" }],
   userAddress: {
     type: {
       addressType: {
@@ -27,7 +28,7 @@ const usersSchema = new mongoose.Schema({
       country: { type: String, required: true },
       zipCode: { type: Number, required: true },
       city: { type: String, required: true },
-      state: { type: String, required: true },
+      state: { type: String, required: false },
     },
     required: false,
   },

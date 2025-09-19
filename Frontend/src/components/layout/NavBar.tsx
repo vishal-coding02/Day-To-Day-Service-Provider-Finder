@@ -16,6 +16,8 @@ const NavBar = () => {
   };
 
   useEffect(() => {
+    if (!accessToken) return;
+
     fetch(COINS_URL, {
       method: "GET",
       headers: {
@@ -55,6 +57,14 @@ const NavBar = () => {
                 >
                   About
                 </Link>
+                {accessToken && userType === "admin" && (
+                  <Link
+                    to="/adminDashBoard"
+                    className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-100 transition-colors"
+                  >
+                    Admin DashBoard
+                  </Link>
+                )}
                 <Link
                   to="/coins"
                   className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-100 transition-colors"
