@@ -6,22 +6,48 @@ import type ServicePackage from "../interfaces/ServicePackageInterface";
 import NavBar from "../components/layout/NavBar";
 import Footer from "../components/layout/Footer";
 
+const COINS_URL = import.meta.env.VITE_COINS_URL;
 const PROVIDERS_PROFILE_URL = import.meta.env.VITE_PROVIDERS_PROFILE_URL;
 const MYPACKAGES_URL = import.meta.env.VITE_PROVIDERS_MYPACKAGES_URL;
+const PURCHASE_CONTACT_URL = import.meta.env.VITE_PURCHASE_CONTACT_URL;
+const UNLOCKED_CONTACT_URL = import.meta.env.VITE_UNLOCKED_CONTACT_URL;
 
 const ProviderProfile = () => {
   const navigate = useNavigate();
   const userType = localStorage.getItem("userType");
+  const [userCoins, setUserCoins] = useState(0);
   const { id } = useParams();
   const [providerData, setProviderData] = useState<ProviderProfileData | null>(
     null
   );
+  const [unlocked, setUnlocked] = useState(false);
   const [packages, setPackages] = useState<ServicePackage[]>([]);
   const [activeTab, setActiveTab] = useState<
-    "profile" | "packages" | "settings"
+    "profile" | "packages" | "settings" | "contact"
   >("profile");
+  const [contactVisible, setContactVisible] = useState(false);
   const accessToken = localStorage.getItem("accessToken");
   const token = useSelector((state: any) => state.auth.jwtToken);
+
+  useEffect(() => {
+    if (!accessToken) return;
+
+    fetch(COINS_URL, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token || accessToken}`,
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("Coins :", data.userCoins);
+        setUserCoins(data.userCoins);
+      })
+      .catch((err) => {
+        console.log("Error :", err.message);
+      });
+  }, [token]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -68,6 +94,51 @@ const ProviderProfile = () => {
 
     fetchPackages();
   }, [token, id]);
+
+  useEffect(() => {
+    const checkUnlocked = async () => {
+      const res = await fetch(`${UNLOCKED_CONTACT_URL}/${id}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token || accessToken}`,
+        },
+      });
+      const data = await res.json();
+      setUnlocked(data.unlocked);
+    };
+    checkUnlocked();
+  }, [id]);
+
+  // Function to handle contact purchase
+  const handlePurchaseContact = async () => {
+    try {
+      const response = await fetch(PURCHASE_CONTACT_URL, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token || accessToken}`,
+        },
+        body: JSON.stringify({
+          deduct: 200,
+          id,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Update user coins
+        setUserCoins(data.updatedCoins);
+        // Show provider contact info
+        setContactVisible(true);
+      } else {
+        alert(data.message || "Purchase failed");
+      }
+    } catch (error) {
+      console.error("Purchase error:", error);
+      alert("An error occurred during purchase");
+    }
+  };
 
   // Function to render star ratings
   const renderRatingStars = (rating: number = 0) => {
@@ -136,6 +207,18 @@ const ProviderProfile = () => {
             >
               Service Packages ({packages.length})
             </button>
+            {/* {userType === "customer" && (
+              <button
+                className={`py-3 px-6 font-medium text-sm ${
+                  activeTab === "contact"
+                    ? "text-blue-600 border-b-2 border-blue-600"
+                    : "text-gray-500 hover:text-gray-700"
+                }`}
+                onClick={() => setActiveTab("contact")}
+              >
+                Contact
+              </button>
+            )} */}
             {userType === "provider" && (
               <button
                 className={`py-3 px-6 font-medium text-sm ${
@@ -200,13 +283,23 @@ const ProviderProfile = () => {
                         ).toLocaleDateString()}
                       </span>
                     </div>
-                    {userType === "customer" && (
-                      <div className="mt-6">
-                        <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium flex items-center">
-                          <i className="fas fa-phone-alt mr-2"></i> Contact
-                          Provider
-                        </button>
+                    {unlocked ? (
+                      <div className="flex items-center text-gray-600">
+                        <i className="fas fa-phone mr-2 text-blue-600"></i>
+                        <span>{providerData?.userID?.userPhone}</span>
                       </div>
+                    ) : (
+                      userType === "customer" && (
+                        <div className="mt-6">
+                          <button
+                            onClick={() => setActiveTab("contact")}
+                            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium flex items-center"
+                          >
+                            <i className="fas fa-phone-alt mr-2"></i> Contact
+                            Provider
+                          </button>
+                        </div>
+                      )
                     )}
                   </div>
                 </div>
@@ -437,6 +530,84 @@ const ProviderProfile = () => {
                       </div>
                     </div>
                   ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Contact Tab Content */}
+          {activeTab === "contact" && (
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-6">
+                Contact Provider
+              </h2>
+
+              {!contactVisible ? (
+                <div className="text-center">
+                  <div className="mb-6">
+                    <i className="fas fa-phone-alt text-4xl text-blue-600 mb-4"></i>
+                    <p className="text-gray-700 mb-2">
+                      Get access to this provider's contact information
+                    </p>
+                    <p className="text-lg font-semibold mb-4">
+                      Cost: <span className="text-blue-600">200 Coins</span>
+                    </p>
+                    <p className="text-gray-600 mb-4">
+                      Your current balance: <b>{userCoins} Coins</b>
+                    </p>
+                  </div>
+
+                  {userCoins >= 200 ? (
+                    <button
+                      onClick={handlePurchaseContact}
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium text-lg"
+                    >
+                      Unlock Contact Information
+                    </button>
+                  ) : (
+                    <div>
+                      <p className="text-red-500 mb-4">
+                        You don't have enough coins to unlock this contact
+                        information.
+                      </p>
+                      <button
+                        onClick={() => navigate("/coins")}
+                        className="bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-3 rounded-lg font-medium text-lg"
+                      >
+                        Buy More Coins
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center">
+                  <div className="mb-6">
+                    <i className="fas fa-check-circle text-4xl text-green-500 mb-4"></i>
+                    <p className="text-gray-700 mb-2">
+                      Contact information unlocked successfully!
+                    </p>
+                  </div>
+
+                  <div className="bg-gray-50 p-6 rounded-lg max-w-md mx-auto">
+                    <h3 className="text-lg font-semibold mb-4">
+                      Provider Contact Details
+                    </h3>
+
+                    <div className="space-y-4 text-left">
+                      <div className="flex items-center">
+                        <i className="fas fa-phone text-blue-600 w-6"></i>
+                        <span className="ml-3">
+                          {providerData?.userID?.userPhone}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="mt-6 pt-4 border-t border-gray-200">
+                      <p className="text-sm text-gray-500">
+                        Remaining coins: <b>{userCoins}</b>
+                      </p>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
