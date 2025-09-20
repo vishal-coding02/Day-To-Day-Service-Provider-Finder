@@ -118,8 +118,34 @@ async function findProviders(req, res) {
   }
 }
 
+async function customerProfile(req, res) {
+  try {
+    if (req.user.type === "customer") {
+      const { id } = req.params;
+      const customer = await Users.findById(id).populate(
+        "providerContactList",
+        "userName userPhone profilePic"
+      );
+
+      res.status(200).json({
+        message: "customer profile fetched successfully",
+        data: customer,
+      });
+    } else {
+      return res.status(403).json({
+        success: false,
+        message: "Only customers fetch there profile",
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+}
+
 module.exports = {
   createRequest,
   myRequest,
   findProviders,
+  customerProfile,
 };
