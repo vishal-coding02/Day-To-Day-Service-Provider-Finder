@@ -107,6 +107,12 @@ const NavBar = () => {
                     >
                       Post Requirement
                     </Link>
+                    <Link
+                      to={`/customerProfile/${userID}`}
+                      className="text-gray-600 px-3 py-2 rounded-md text-sm font-medium hover:text-gray-900 hover:bg-gray-100 transition-colors"
+                    >
+                      Customer Profile
+                    </Link>
                   </>
                 )}
               </div>
@@ -268,6 +274,13 @@ const NavBar = () => {
                   onClick={() => setIsMenuOpen(false)}
                 >
                   Post Requirement
+                </Link>
+                <Link
+                  to={`/customerProfile/${userID}`}
+                  className="text-gray-600 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-medium hover:bg-gray-100 transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Customer Profile
                 </Link>
               </>
             )}

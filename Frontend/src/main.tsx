@@ -20,6 +20,7 @@ import CreateCustomerRequest from "./pages/CreateCustomerRequest.tsx";
 import ProviderProfile from "./pages/ProviderProfile.tsx";
 import ServicePackage from "./pages/ProviderPackages.tsx";
 import BuyCoins from "./pages/BuyCoins.tsx";
+import CustomerProfile from "./pages/CustomerProfile.tsx";
 
 const router = createBrowserRouter([
   {
@@ -85,6 +86,10 @@ const router = createBrowserRouter([
   {
     path: "/coins",
     element: <BuyCoins />,
+  },
+  {
+    path: "customerProfile/:id",
+    element: <CustomerProfile />,
   },
 ]);
 
