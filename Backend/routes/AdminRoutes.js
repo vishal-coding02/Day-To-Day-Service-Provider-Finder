@@ -5,6 +5,8 @@ const {
   allUsers,
   pendingProviders,
   reviewProviderProfile,
+  approveMail,
+  rejectMail,
 } = require("../controllers/Admin");
 
 adminRouter.get("/users", verifyToken, allUsers);
@@ -14,5 +16,7 @@ adminRouter.get(
   verifyToken,
   reviewProviderProfile
 );
+adminRouter.post("/approveProvider", verifyToken, approveMail);
+adminRouter.post("/rejectProvider", verifyToken, rejectMail);
 
 module.exports = adminRouter;
