@@ -15,6 +15,7 @@ const SignUp = () => {
     phone: 0,
     userType: "customer",
     password: "",
+    email: "",
   });
 
   const handleSignUp = () => {
@@ -48,6 +49,7 @@ const SignUp = () => {
       phone: 0,
       userType: "customer",
       password: "",
+      email: "",
     });
   };
 
@@ -209,6 +211,39 @@ const SignUp = () => {
                       setUsers({ ...users, phone: Number(e.target.value) });
                     }}
                     placeholder="Enter your phone number"
+                    className="pl-10 w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition duration-200"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Email
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg
+                      className="h-5 w-5 text-gray-400"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path d="M2.94 6.34A2 2 0 0 1 4.5 6h11a2 2 0 0 1 1.56.34l-6.06 4.55a2 2 0 0 1-2.5 0L2.94 6.34z" />
+                      <path d="M18 8.67v5.83A2.5 2.5 0 0 1 15.5 17h-11A2.5 2.5 0 0 1 2 14.5V8.67l6.47 4.85a4 4 0 0 0 4.94 0L18 8.67z" />
+                    </svg>
+                  </div>
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      setUsers({ ...users, email: e.target.value });
+                    }}
+                    placeholder="Enter your email"
                     className="pl-10 w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition duration-200"
                     required
                   />
