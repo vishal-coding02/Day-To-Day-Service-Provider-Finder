@@ -8,17 +8,20 @@ import NavBar from "../components/layout/NavBar";
 import Footer from "../components/layout/Footer";
 
 const Login = () => {
-  const navitage = useNavigate();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
-  // const userType = useSelector((state: any) => state.auth.userData.type);
+
   const [loginData, setLoginData] = useState<LoginForm>({
     phone: "",
     password: "",
+    email: "",
   });
 
+  const [loginType, setLoginType] = useState<"phone" | "email">("phone"); 
   const [errors, setErrors] = useState({
     phone: "",
     password: "",
+    email: "",
     general: "",
   });
 
@@ -39,15 +42,47 @@ const Login = () => {
     }
   };
 
+  const toggleLoginType = () => {
+    setLoginType(loginType === "phone" ? "email" : "phone");
+    setErrors({ phone: "", password: "", email: "", general: "" });
+  };
+
+  const validateForm = () => {
+    const newErrors = { phone: "", password: "", email: "", general: "" };
+
+    if (loginType === "phone" && !loginData.phone) {
+      newErrors.phone = "Phone number is required";
+    } else if (loginType === "email" && !loginData.email) {
+      newErrors.email = "Email is required";
+    }
+
+    if (!loginData.password) {
+      newErrors.password = "Password is required";
+    }
+
+    setErrors(newErrors);
+    return !newErrors.phone && !newErrors.password && !newErrors.email;
+  };
+
   const handleLogin = () => {
-    console.log(loginData);
+    if (!validateForm()) {
+      return;
+    }
+
+    // Prepare data to send based on login type
+    const requestData = {
+      password: loginData.password,
+      [loginType]: loginData[loginType],
+    };
+
+    console.log("Sending login data:", requestData);
 
     fetch(LOGIN_API_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(loginData),
+      body: JSON.stringify(requestData),
     })
       .then(async (res) => {
         const data = await res.json();
@@ -81,16 +116,16 @@ const Login = () => {
         dispatch(loginAction(data));
 
         if (data.userType === "customer") {
-          navitage("/postRequirement");
+          navigate("/postRequirement");
         } else if (
           data.providerStatus == "pending" &&
           data.userType === "provider"
         ) {
-          navitage(`/providerReviews/${data.userID}`);
-        } else {
-          navitage("/providerDashBoard");
+          navigate(`/providerReviews/${data.userID}`);
+        } else if (data.userType === "admin") {
+          navigate("/adminDashBoard");
         }
-        setErrors({ phone: "", password: "", general: "" });
+        setErrors({ phone: "", password: "", email: "", general: "" });
       })
       .catch((err) => {
         console.log("Error:", err.message);
@@ -100,8 +135,8 @@ const Login = () => {
         }));
       });
 
-    //   Reset Input
-    setLoginData({ phone: "", password: "" });
+    // Reset Input
+    setLoginData({ phone: "", password: "", email: "" });
   };
 
   return (
@@ -123,38 +158,86 @@ const Login = () => {
               className="space-y-4"
               onSubmit={(e: React.FormEvent<HTMLFormElement>) => {
                 e.preventDefault();
+                handleLogin();
               }}
             >
+              {/* Login Type Toggle */}
+              <div className="flex justify-center mb-4">
+                <div className="bg-gray-100 rounded-lg p-1 flex">
+                  <button
+                    type="button"
+                    onClick={toggleLoginType}
+                    className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                      loginType === "phone"
+                        ? "bg-white text-blue-600 shadow-sm"
+                        : "text-gray-600 hover:text-gray-900"
+                    }`}
+                  >
+                    Phone Login
+                  </button>
+                  <button
+                    type="button"
+                    onClick={toggleLoginType}
+                    className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                      loginType === "email"
+                        ? "bg-white text-blue-600 shadow-sm"
+                        : "text-gray-600 hover:text-gray-900"
+                    }`}
+                  >
+                    Email Login
+                  </button>
+                </div>
+              </div>
+
+              {/* Dynamic Input Field */}
               <div>
                 <label
-                  htmlFor="email"
+                  htmlFor={loginType}
                   className="block text-sm font-medium text-gray-700 mb-1"
                 >
-                  Phone Number
+                  {loginType === "phone" ? "Phone Number" : "Email Address"}
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg
-                      className="h-5 w-5 text-gray-400"
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
-                    </svg>
+                    {loginType === "phone" ? (
+                      <svg
+                        className="h-5 w-5 text-gray-400"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
+                      </svg>
+                    ) : (
+                      <svg
+                        className="h-5 w-5 text-gray-400"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                        <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                      </svg>
+                    )}
                   </div>
                   <input
-                    id="phone"
-                    name="phone"
-                    type="phone"
-                    value={loginData.phone}
+                    id={loginType}
+                    name={loginType}
+                    type={loginType === "phone" ? "tel" : "email"}
+                    value={loginData[loginType] || ""}
                     onChange={handleInputChange}
-                    placeholder="Enter your phone number"
+                    placeholder={
+                      loginType === "phone"
+                        ? "Enter your phone number"
+                        : "Enter your email address"
+                    }
                     className="pl-10 w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition duration-200"
                   />
                 </div>
-                {errors.phone && (
-                  <p className="mt-1 text-sm text-red-600">{errors.phone}</p>
+                {errors[loginType] && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {errors[loginType]}
+                  </p>
                 )}
               </div>
 
@@ -249,69 +332,12 @@ const Login = () => {
               <div className="pt-2">
                 <button
                   type="submit"
-                  onClick={handleLogin}
                   className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-200 font-medium"
                 >
                   Sign In
                 </button>
               </div>
             </form>
-
-            <div className="mt-6">
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-300"></div>
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-gray-500">
-                    Or continue with
-                  </span>
-                </div>
-              </div>
-
-              <div className="mt-4 grid grid-cols-2 gap-3">
-                <div>
-                  <a
-                    href="#"
-                    className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
-                  >
-                    <svg
-                      className="w-5 h-5 text-blue-500"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M12.317 4.162a5.25 5.25 0 016.521 0 5.25 5.25 0 01-1.353 8.51 5.25 5.25 0 01-1.742-.963 5.25 5.25 0 01-1.742.963 5.25 5.25 0 01-1.353-8.51zm-1.174 6.558a3.75 3.75 0 100-7.5 3.75 3.75 0 000 7.5z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    <span className="ml-2">Facebook</span>
-                  </a>
-                </div>
-                <div>
-                  <a
-                    href="#"
-                    className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
-                  >
-                    <svg
-                      className="w-5 h-5 text-red-500"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M10 0C4.477 0 0 4.477 0 10s4.477 10 10 10 10-4.477 10-10S15.523 0 10 0zm5.657 16.243l-1.414 1.414C12.146 19.098 10.9 19.5 10 19.5s-2.146-.402-3.243-1.843l-1.414-1.414C3.902 14.146 3.5 12.9 3.5 12s.402-2.146 1.843-3.243l1.414-1.414C7.854 5.902 9.1 5.5 10 5.5s2.146.402 3.243 1.843l1.414 1.414C16.098 9.854 16.5 11.1 16.5 12s-.402 2.146-1.843 3.243z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    <span className="ml-2">Google</span>
-                  </a>
-                </div>
-              </div>
-            </div>
 
             <div className="mt-6 text-center text-sm text-gray-600">
               Don't have an account?{" "}

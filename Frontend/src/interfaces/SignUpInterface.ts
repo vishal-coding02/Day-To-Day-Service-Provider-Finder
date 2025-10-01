@@ -3,5 +3,5 @@ export default interface SignUpForm {
   phone: number;
   password: string;
   userType: string;
+  email: string;
 }
-
