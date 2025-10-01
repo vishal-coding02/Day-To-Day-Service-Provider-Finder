@@ -1,5 +1,10 @@
 const Users = require("../models/UserModel");
 const Providers = require("../models/ProviderModel");
+const {
+  sendApprovalEmail,
+  sendRejectionEmail,
+} = require("../services/EmailService");
+const RejectedProvider = require("../models/RejectedProviderModel");
 
 async function allUsers(req, res) {
   try {
@@ -62,4 +67,87 @@ async function reviewProviderProfile(req, res) {
   }
 }
 
-module.exports = { allUsers, pendingProviders, reviewProviderProfile };
+async function approveMail(req, res) {
+  try {
+    if (req.user.type === "admin") {
+      const { providerId, userId } = req.body;
+
+      const provider = await Providers.findByIdAndUpdate(
+        providerId,
+        { status: "approved" },
+        { new: true }
+      );
+
+      if (!provider) {
+        return res.status(404).json({ error: "Provider not found" });
+      }
+
+      const user = await Users.findById(userId);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      await sendApprovalEmail(user.userEmail, user.userName);
+
+      res.json({
+        message: "Provider approved and email sent",
+        provider,
+        user,
+      });
+    } else {
+      res.status(403).json({ message: "Access denied. Admin only." });
+    }
+  } catch (err) {
+    console.error("Approval error:", err.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
+
+async function rejectMail(req, res) {
+  try {
+    if (req.user.type === "admin") {
+      const { providerId, userId, reason } = req.body;
+
+      const user = await Users.findById(userId);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      const provider = await Providers.findByIdAndUpdate(
+        providerId,
+        { status: "reject" },
+        { new: true }
+      );
+
+      if (!provider) {
+        return res.status(404).json({ error: "Provider not found" });
+      }
+
+      await RejectedProvider.create({
+        userId: user._id,
+        reason: reason || "Not specified",
+        rejectedAt: new Date(),
+      });
+
+      await sendRejectionEmail(user.userEmail, user.userName, reason);
+
+      res.json({
+        message: "Provider rejected, record saved and email sent",
+        data: RejectedProvider,
+      });
+    } else {
+      res.status(403).json({ message: "Access denied. Admin only." });
+    }
+  } catch (err) {
+    console.error("Rejection error:", err.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
+
+module.exports = {
+  allUsers,
+  pendingProviders,
+  reviewProviderProfile,
+  approveMail,
+  rejectMail,
+};
