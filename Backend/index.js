@@ -13,7 +13,8 @@ const compalintsRouter = require("./routes/ComplaintsRoutes");
 const otpRouter = require("./routes/OtpRoute");
 const adminRouter = require("./routes/AdminRoutes");
 const packageRouter = require("./routes/ServicesPackageRoutes");
-const coinsRouter = require("./routes/CoinsRoutes")
+const coinsRouter = require("./routes/CoinsRoutes");
+const rejectedRouter = require("./routes/RejectedProviderRoute");
 
 app.use(cookieParser());
 app.use(
@@ -44,7 +45,8 @@ app.use(compalintsRouter);
 app.use(otpRouter);
 app.use("/admin", adminRouter);
 app.use("/packages", packageRouter);
-app.use(coinsRouter)
+app.use(coinsRouter);
+app.use(rejectedRouter);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

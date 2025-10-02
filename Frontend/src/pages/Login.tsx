@@ -17,7 +17,7 @@ const Login = () => {
     email: "",
   });
 
-  const [loginType, setLoginType] = useState<"phone" | "email">("phone"); 
+  const [loginType, setLoginType] = useState<"phone" | "email">("phone");
   const [errors, setErrors] = useState({
     phone: "",
     password: "",
@@ -124,6 +124,11 @@ const Login = () => {
           navigate(`/providerReviews/${data.userID}`);
         } else if (data.userType === "admin") {
           navigate("/adminDashBoard");
+        } else if (
+          data.providerStatus === "reject" &&
+          data.userType === "provider"
+        ) {
+          navigate("/rejectedProvider");
         }
         setErrors({ phone: "", password: "", email: "", general: "" });
       })
