@@ -71,7 +71,7 @@ const OTPVerification = () => {
             Verify Your Account
           </h1>
           <p className="text-center opacity-90 mt-2">
-            Enter the 6-digit code sent to your phone, your otp is 123456
+            Enter the 6-digit code sent to your phone
           </p>
         </div>
 

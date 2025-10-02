@@ -21,7 +21,7 @@ import ProviderProfile from "./pages/ProviderProfile.tsx";
 import ServicePackage from "./pages/ProviderPackages.tsx";
 import BuyCoins from "./pages/BuyCoins.tsx";
 import CustomerProfile from "./pages/CustomerProfile.tsx";
-
+import RejectedProvider from "./components/RejectedProvider.tsx";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -90,6 +90,10 @@ const router = createBrowserRouter([
   {
     path: "customerProfile/:id",
     element: <CustomerProfile />,
+  },
+  {
+    path: "/rejectedProvider",
+    element: <RejectedProvider />,
   },
 ]);
 
